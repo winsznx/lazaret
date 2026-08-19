@@ -41,6 +41,9 @@ importers:
       '@lazaret/refmodel':
         specifier: workspace:*
         version: link:../../packages/refmodel
+      npm-high-impact:
+        specifier: ^1.13.0
+        version: 1.13.0
       p-limit:
         specifier: ^6.1.0
         version: 6.2.0
@@ -987,6 +990,9 @@ packages:
 
   neo4j-driver@5.28.3:
     resolution: {integrity: sha512-k7c0wEh3HoONv1v5AyLp9/BDAbYHJhz2TZvzWstSEU3g3suQcXmKEaYBfrK2UMzxcy3bCT0DrnfRbzsOW5G/Ag==}
+
+  npm-high-impact@1.13.0:
+    resolution: {integrity: sha512-Dngjb2fyZfj4/7aZ+9kGGGK/IWnBhb45nzHX1ECxi26vXixkKzdixCB81XTwQzyAwc4d39VbcTL+rlS+d7VETA==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -2014,6 +2020,8 @@ snapshots:
       neo4j-driver-bolt-connection: 5.28.3
       neo4j-driver-core: 5.28.3
       rxjs: 7.8.2
+
+  npm-high-impact@1.13.0: {}
 
   optionator@0.9.4:
     dependencies:

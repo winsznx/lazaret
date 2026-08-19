@@ -10,6 +10,7 @@
   "dependencies": {
     "@lazaret/graph-client": "workspace:*",
     "@lazaret/refmodel": "workspace:*",
+    "npm-high-impact": "^1.13.0",
     "p-limit": "^6.1.0",
     "semver": "^7.6.3"
   },
