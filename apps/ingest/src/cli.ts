@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs"
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { resolve } from "node:path"
-import { configFromEnv, GraphClient } from "@lazaret/graph-client"
+import { configFromEnv, GraphClient, nodeId } from "@lazaret/graph-client"
 import { computeClosure } from "@lazaret/refmodel"
 import { compileIncident } from "./compiler"
 import { crawl } from "./crawler"
@@ -36,12 +36,6 @@ async function countLabel(client: GraphClient, label: string): Promise<number> {
   return typeof value === "number" ? value : 0
 }
 
-async function countEdges(client: GraphClient, relType: string): Promise<number> {
-  const row = await client.queryOne(`MATCH ()-[r:${relType}]->() RETURN count(*) AS c`)
-  const value = row?.["c"]
-  return typeof value === "number" ? value : 0
-}
-
 async function seedFixture(client: GraphClient): Promise<void> {
   const slice = readJson<NormalizedSlice>("fixtures/micro/slice.json")
   const report = await loadSlice(client, slice)
@@ -53,15 +47,12 @@ async function seedFixture(client: GraphClient): Promise<void> {
 }
 
 async function stats(client: GraphClient): Promise<void> {
-  const [packages, versions, advisories, dependsOn] = await Promise.all([
+  const [packages, versions, advisories] = await Promise.all([
     countLabel(client, "Package"),
     countLabel(client, "Version"),
     countLabel(client, "Advisory"),
-    countEdges(client, "DEPENDS_ON"),
   ])
-  console.log(
-    `packages=${packages} versions=${versions} advisories=${advisories} depends_on=${dependsOn}`,
-  )
+  console.log(`packages=${packages} versions=${versions} advisories=${advisories}`)
 }
 
 async function runCrawl(): Promise<void> {
@@ -102,6 +93,7 @@ async function loadDir(client: GraphClient): Promise<void> {
       `${slice.versions.length} versions, ${slice.edges.length} edges`,
   )
   const report = await loadSlice(client, slice)
+  writeFileSync(resolve(dir, "load-report.json"), JSON.stringify(report, null, 2))
   console.log(
     `loaded: ${report.packages} packages, ${report.versions} versions ` +
       `(${report.reconstructed} reconstructed), ${report.dependsOn} DEPENDS_ON in ` +
@@ -112,6 +104,9 @@ async function loadDir(client: GraphClient): Promise<void> {
 async function runCompile(client: GraphClient): Promise<void> {
   const incident = loadIncident(argValue("incident", "fixtures/incidents/tanstack-micro.json"))
   const result = await compileIncident(client, incident)
+  const reportDir = resolve(REPO_ROOT, "data")
+  mkdirSync(reportDir, { recursive: true })
+  writeFileSync(resolve(reportDir, `compile-${incident.id}.json`), JSON.stringify(result, null, 2))
   const histogram = Array.from(
     { length: result.depthHistogram.length },
     (_unused, depth) => `${depth}:${result.depthHistogram[depth] ?? 0}`,
@@ -141,6 +136,17 @@ async function verifyFixture(client: GraphClient): Promise<void> {
   }
 }
 
+async function dependents(client: GraphClient): Promise<void> {
+  for (const pkg of argValue("pkg", "debug").split(",")) {
+    const row = await client.queryOne(
+      "MATCH (p:Package {id: $pid})<-[e:DEPENDS_ON]-(v:Version) RETURN count(*) AS c",
+      { pid: nodeId("pkg", pkg) },
+    )
+    const count = row?.["c"]
+    console.log(`${pkg}: ${typeof count === "number" ? count : 0} dependent versions`)
+  }
+}
+
 async function main(): Promise<void> {
   loadDotenv()
   const command = process.argv[2] ?? "help"
@@ -165,8 +171,11 @@ async function main(): Promise<void> {
       case "verify":
         await verifyFixture(client)
         break
+      case "dependents":
+        await dependents(client)
+        break
       default:
-        console.log("usage: cli <seed-fixture|stats|crawl|load-dir|compile|verify>")
+        console.log("usage: cli <seed-fixture|stats|crawl|load-dir|compile|verify|dependents>")
     }
   } finally {
     await client.close()

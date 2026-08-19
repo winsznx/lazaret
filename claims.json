@@ -1,5 +1,46 @@
 {
   "$schema": "./scripts/claims.schema.json",
   "description": "Every public numeric or factual claim Lazaret makes, with an evidence pointer and a machine check. pnpm check:claims re-verifies each claim and fails on drift.",
-  "claims": []
+  "claims": [
+    {
+      "id": "fixture.parity",
+      "statement": "On the fixture micro-slice the compiled EXPOSES set equals the reference-model closure exactly: 3 members across depths 0, 1, and 2.",
+      "rung": "fixture-slice",
+      "value": 3,
+      "measuredAt": "2026-08-19T22:15:00Z",
+      "evidence": "pnpm verify",
+      "verify": { "type": "static" },
+      "limitations": "Deterministic fixture, checked on every verify run against a live node."
+    },
+    {
+      "id": "slice.edges",
+      "statement": "The demonstration npm slice loaded into HydraDB contains 3980 packages, 31700 versions, and 85780 DEPENDS_ON edges.",
+      "rung": "full-slice",
+      "value": 85780,
+      "measuredAt": "2026-08-19T22:15:00Z",
+      "evidence": "pnpm exec tsx apps/ingest/src/cli.ts crawl --max=3000 --depth=1 then load-dir; counts in data/slice/report.json and data/slice/load-report.json.",
+      "verify": { "type": "static" },
+      "limitations": "A bounded slice seeded from npm-high-impact plus incident packages, not all of npm. Counts move with the crawl budget."
+    },
+    {
+      "id": "chalk-debug.closure",
+      "statement": "Compiling the September 2025 chalk/debug incident over the slice materialized a 983-version exposure closure across depths 0 to 5 from 16 real compromised targets, in 3.4 seconds over 110 reverse reads.",
+      "rung": "incident-parity",
+      "value": 983,
+      "measuredAt": "2026-08-19T22:15:00Z",
+      "evidence": "pnpm exec tsx apps/ingest/src/cli.ts compile --incident=fixtures/incidents/chalk-debug-2025-09.json; record in data/compile-chalk-debug-2025-09.json.",
+      "verify": { "type": "static" },
+      "limitations": "Closure size depends on the crawled slice. Malicious version numbers and timestamps were reconstructed from the live npm registry time map."
+    },
+    {
+      "id": "blast-at-t.latency",
+      "statement": "After compilation, blast radius at time t over the 983-member chalk/debug closure returns in about 56 ms warm for the full frame and 53 ms for a 513-row mid-incident frame.",
+      "rung": "incident-parity",
+      "value": 56,
+      "measuredAt": "2026-08-19T22:15:00Z",
+      "evidence": "Direct HydraDB HTTP query MATCH (a:Advisory)-[e:EXPOSES]->(v) WHERE e.t_first <= $t, timed with curl.",
+      "verify": { "type": "static" },
+      "limitations": "Local single-node measurement on Apple Silicon. Cold first call is about 246 ms."
+    }
+  ]
 }

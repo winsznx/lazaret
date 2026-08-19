@@ -1,0 +1,28 @@
+{
+  "id": "chalk-debug-2025-09",
+  "sourceId": "npm-qix-maintainer-compromise-2025-09-08",
+  "targets": [
+    { "pkg": "ansi-styles", "version": "6.2.2", "publishedAt": 1757337130 },
+    { "pkg": "debug", "version": "4.4.2", "publishedAt": 1757337159 },
+    { "pkg": "chalk", "version": "5.6.1", "publishedAt": 1757337185 },
+    { "pkg": "supports-color", "version": "10.2.1", "publishedAt": 1757337208 },
+    { "pkg": "strip-ansi", "version": "7.1.1", "publishedAt": 1757337230 },
+    { "pkg": "ansi-regex", "version": "6.2.1", "publishedAt": 1757337255 },
+    { "pkg": "wrap-ansi", "version": "9.0.1", "publishedAt": 1757337276 },
+    { "pkg": "color-convert", "version": "3.1.1", "publishedAt": 1757337293 },
+    { "pkg": "color-name", "version": "2.0.1", "publishedAt": 1757337312 },
+    { "pkg": "is-arrayish", "version": "0.3.3", "publishedAt": 1757337329 },
+    { "pkg": "slice-ansi", "version": "7.1.1", "publishedAt": 1757337347 },
+    { "pkg": "color-string", "version": "2.1.1", "publishedAt": 1757337487 },
+    { "pkg": "simple-swizzle", "version": "0.2.3", "publishedAt": 1757337545 },
+    { "pkg": "supports-hyperlinks", "version": "4.1.1", "publishedAt": 1757337568 },
+    { "pkg": "has-ansi", "version": "6.0.1", "publishedAt": 1757337586 },
+    { "pkg": "chalk-template", "version": "1.1.1", "publishedAt": 1757337609 }
+  ],
+  "windowStart": 1757337130,
+  "windowEnd": 1757344330,
+  "windowEndEstimated": true,
+  "sources": [
+    "September 8 2025 npm supply-chain worm following the compromise of the qix maintainer account. Malicious versions of chalk, debug, ansi-styles, strip-ansi, supports-color and more than a dozen related packages were published between 13:12 and 13:20 UTC. Compromised version numbers and publish times were read from the live npm registry time map on 2026-08-19, where they survive although the versions were removed. The window end is an estimate of the remediation window and is flagged as such."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "tanstack-2026-05",
+  "sourceId": "GHSA-g7cv-rxg3-hmpx",
+  "targets": [
+    { "pkg": "@tanstack/react-router", "version": "1.169.5", "publishedAt": 1778527242 },
+    { "pkg": "@tanstack/react-router", "version": "1.169.8", "publishedAt": 1778527577 }
+  ],
+  "windowStart": 1778527242,
+  "windowEnd": 1778528802,
+  "windowEndEstimated": true,
+  "sources": [
+    "TanStack postmortem, GHSA-g7cv-rxg3-hmpx, and the Snyk, Wiz, StepSecurity, and Aikido write-ups. 84 malicious versions across 42 @tanstack packages were published between 19:20 and 19:26 UTC on 2026-05-11; the window end is an estimate from published detection times and is flagged as such. Malicious version publish times were read from the live npm registry time map on 2026-08-19, where they survive even though the versions were removed."
+  ]
+}
