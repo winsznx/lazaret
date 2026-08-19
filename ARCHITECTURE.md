@@ -35,7 +35,7 @@ HydraDB -> API reads -> UI and JSON
 
 ## Graph schema and identity
 
-HydraDB nodes key on non-negative integer ids, so identity is deterministic. `id = first 8 bytes of BLAKE3(kind || ":" || canonical_key)` with the top bit cleared. Kinds are `pkg`, `ver`, and `adv`. The ingester keeps an append-only `ids.jsonl` manifest and aborts on collision rather than assuming it away.
+HydraDB nodes key on non-negative integer ids, so identity is deterministic. `id = the low 53 bits of BLAKE3(kind || ":" || canonical_key)`, kept inside the JavaScript safe-integer range because the HTTP API returns ids as JSON numbers (see DECISIONS ADR-0005). Kinds are `pkg`, `ver`, and `adv`. The ingester keeps an append-only `ids.jsonl` manifest and aborts on collision rather than assuming it away.
 
 Nodes:
 
