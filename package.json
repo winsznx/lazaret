@@ -20,6 +20,7 @@
     "check:claims": "tsx scripts/check-claims.ts",
     "seed:fixture": "tsx apps/ingest/src/cli.ts seed-fixture",
     "stats": "tsx apps/ingest/src/cli.ts stats",
+    "verify": "tsx apps/ingest/src/cli.ts verify && pnpm run check:claims",
     "ci": "pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run check:claims"
   },
   "devDependencies": {

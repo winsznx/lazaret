@@ -59,14 +59,30 @@ export class GraphClient {
     rows: Record<string, unknown>[],
     batchSize = DEFAULT_BATCH,
   ): Promise<void> {
-    const session = this.driver().session({ database: this.cfg.graph })
-    try {
-      for (let i = 0; i < rows.length; i += batchSize) {
-        await session.run(cypher, { rows: rows.slice(i, i + batchSize) })
-      }
-    } finally {
-      await session.close()
+    for (let i = 0; i < rows.length; i += batchSize) {
+      await this.runBatchWithRetry(cypher, rows.slice(i, i + batchSize))
     }
+  }
+
+  private async runBatchWithRetry(
+    cypher: string,
+    rows: Record<string, unknown>[],
+    attempts = 4,
+  ): Promise<void> {
+    let lastError: unknown
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const session = this.driver().session({ database: this.cfg.graph })
+      try {
+        await session.run(cypher, { rows })
+        return
+      } catch (error) {
+        lastError = error
+        await new Promise((resolve) => setTimeout(resolve, 200 * (attempt + 1)))
+      } finally {
+        await session.close()
+      }
+    }
+    throw lastError instanceof Error ? lastError : new Error(String(lastError))
   }
 
   upsertPackages(rows: PackageInput[]): Promise<void> {

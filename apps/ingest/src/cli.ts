@@ -1,9 +1,13 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { configFromEnv, GraphClient } from "@lazaret/graph-client"
+import { computeClosure } from "@lazaret/refmodel"
+import { compileIncident } from "./compiler"
 import { crawl } from "./crawler"
 import { loadDotenv, REPO_ROOT } from "./env"
+import { loadIncident } from "./incident"
 import { loadSlice } from "./loader"
+import { compareParity, incidentToAdvisory, readExposed, sliceToSnapshot } from "./parity"
 import type { EdgeRecord, NormalizedSlice, PackageRecord, VersionRecord } from "./records"
 import { seedNames } from "./seed"
 
@@ -105,6 +109,38 @@ async function loadDir(client: GraphClient): Promise<void> {
   )
 }
 
+async function runCompile(client: GraphClient): Promise<void> {
+  const incident = loadIncident(argValue("incident", "fixtures/incidents/tanstack-micro.json"))
+  const result = await compileIncident(client, incident)
+  const histogram = Array.from(
+    { length: result.depthHistogram.length },
+    (_unused, depth) => `${depth}:${result.depthHistogram[depth] ?? 0}`,
+  ).join(" ")
+  console.log(
+    `compiled ${incident.id}: ${result.members} members, depths [${histogram}], ` +
+      `capHit=${result.capHit}, ${result.reverseReads} reverse reads in ${Math.round(result.ms)}ms`,
+  )
+}
+
+async function verifyFixture(client: GraphClient): Promise<void> {
+  const slice = readJson<NormalizedSlice>("fixtures/micro/slice.json")
+  await loadSlice(client, slice)
+  const incident = loadIncident("fixtures/incidents/tanstack-micro.json")
+  const result = await compileIncident(client, incident)
+  const compiled = await readExposed(client, result.advisoryId)
+  const closure = computeClosure(sliceToSnapshot(slice), incidentToAdvisory(incident))
+  const parity = compareParity(closure.members, compiled)
+  console.log(
+    `refmodel closure ${closure.members.size}, compiled EXPOSES ${compiled.size} in ${Math.round(result.ms)}ms`,
+  )
+  if (parity.ok) {
+    console.log("PARITY OK: compiled EXPOSES equals the reference-model closure, depths match")
+  } else {
+    console.error("PARITY FAILED:", JSON.stringify(parity))
+    process.exitCode = 1
+  }
+}
+
 async function main(): Promise<void> {
   loadDotenv()
   const command = process.argv[2] ?? "help"
@@ -123,8 +159,14 @@ async function main(): Promise<void> {
       case "load-dir":
         await loadDir(client)
         break
+      case "compile":
+        await runCompile(client)
+        break
+      case "verify":
+        await verifyFixture(client)
+        break
       default:
-        console.log("usage: cli <seed-fixture|stats|crawl|load-dir>")
+        console.log("usage: cli <seed-fixture|stats|crawl|load-dir|compile|verify>")
     }
   } finally {
     await client.close()
