@@ -1,0 +1,11 @@
+{
+  "id": "tanstack-2026-05-micro",
+  "sourceId": "GHSA-micro-fixture",
+  "targets": [{ "pkg": "@tanstack/react-router", "version": "1.169.5" }],
+  "windowStart": 1747000000,
+  "windowEnd": 1747001560,
+  "windowEndEstimated": true,
+  "sources": [
+    "Micro fixture reconstructed from the TanStack May 2026 postmortem for tests, not a real advisory record."
+  ]
+}

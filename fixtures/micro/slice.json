@@ -1,0 +1,47 @@
+{
+  "packages": [
+    { "name": "@tanstack/react-router" },
+    { "name": "router-app" },
+    { "name": "meta-lib" },
+    { "name": "safe-app" },
+    { "name": "unrelated-lib" }
+  ],
+  "versions": [
+    { "pkg": "@tanstack/react-router", "version": "1.169.4", "publishedAt": 1746000000 },
+    {
+      "pkg": "@tanstack/react-router",
+      "version": "1.169.5",
+      "publishedAt": 1747000042,
+      "malicious": true,
+      "reconstructed": true
+    },
+    { "pkg": "@tanstack/react-router", "version": "1.170.0", "publishedAt": 1747100000 },
+    { "pkg": "router-app", "version": "1.0.0", "publishedAt": 1746500000 },
+    { "pkg": "meta-lib", "version": "2.0.0", "publishedAt": 1746600000 },
+    { "pkg": "safe-app", "version": "1.0.0", "publishedAt": 1746500000 },
+    { "pkg": "unrelated-lib", "version": "1.0.0", "publishedAt": 1746000000 }
+  ],
+  "edges": [
+    {
+      "fromPkg": "router-app",
+      "fromVersion": "1.0.0",
+      "toPackage": "@tanstack/react-router",
+      "range": "^1.169.0",
+      "kind": "prod"
+    },
+    {
+      "fromPkg": "safe-app",
+      "fromVersion": "1.0.0",
+      "toPackage": "@tanstack/react-router",
+      "range": "1.169.4",
+      "kind": "prod"
+    },
+    {
+      "fromPkg": "meta-lib",
+      "fromVersion": "2.0.0",
+      "toPackage": "router-app",
+      "range": "^1.0.0",
+      "kind": "prod"
+    }
+  ]
+}

@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- Node 22 or newer and pnpm 11 (`corepack enable` will provide pnpm).
-- Docker, to run a local HydraDB node.
+- Node 22 or newer and pnpm 11 (`corepack enable` provides pnpm).
+- Docker, to run the local HydraDB stack.
 
 ## Install
 
@@ -11,37 +11,23 @@
 pnpm install
 ```
 
-## Run a local HydraDB node
+## Run the local HydraDB stack
 
-HydraDB is consumed as an unmodified container. The command below starts a single plaintext development node backed by a host directory. It mirrors the HydraDB README, pinned in [DECISIONS.md](DECISIONS.md) at ADR-0003.
+HydraDB is consumed as an unmodified container. Lazaret runs two roles: a
+`graph-node` for queries and mutations, and a `graph-indexer` that builds the
+reverse-adjacency index that keeps reverse expansion fast (see DECISIONS
+ADR-0006). Both are pinned to a multi-arch image digest in `docker-compose.yml`.
 
 ```bash
-mkdir -p hydradb-data/store hydradb-data/cache
-printf '%s\n' 'local-development-token-32-bytes' > hydradb-data/auth-token
-
-docker run --rm \
-  --user "$(id -u):$(id -g)" \
-  -p 7687:7687 -p 8443:8443 -p 9090:9090 \
-  -v "$PWD/hydradb-data:/data" \
-  -e CLOUD_PROVIDER=local \
-  -e LOCAL_PATH=/data/store \
-  -e GRAPH_NAMESPACE=default \
-  -e GRAPH_ID=default \
-  -e GRAPH_CELL_ID=cell-0 \
-  -e GRAPH_CELLS=cell-0 \
-  -e GRAPH_NODE_ID=node-0 \
-  -e GRAPH_BOLT_NODE_ADDRESSES=node-0=127.0.0.1:7687 \
-  -e GRAPH_ADVERTISED_BOLT_ADDR=127.0.0.1:7687 \
-  -e GRAPH_DATA_CACHE_DIR=/data/cache \
-  -e GRAPH_AUTH_TOKEN_FILE=/data/auth-token \
-  -e GRAPH_ALLOW_PLAINTEXT=true \
-  -e RUST_MIN_STACK=33554432 \
-  ghcr.io/hydra-db/hydradb:latest
+bash scripts/dev-up.sh
 ```
 
-The node runs in the foreground. `LOCAL_PATH` must point at a directory that already exists, which is why the store directory is created first. `--user` is required because the image runs as UID 10001 and the bind mount is owned by the host user. `RUST_MIN_STACK` is required or the node aborts on the first query.
+The script creates the store and cache directories, writes a development auth
+token, exports the host UID and GID so the container can write the bind-mounted
+data, brings both services up, and waits for the node to report ready on
+`http://127.0.0.1:9090/readyz`.
 
-A compose file that wraps this lands with the ingest pipeline.
+Stop the stack with `bash scripts/dev-down.sh`, or `bash scripts/dev-down.sh --volumes` to also delete the graph data.
 
 ## Verify the node
 
@@ -67,10 +53,22 @@ The second call returns one row containing `{"type":"vertex_id","value":2}`.
 
 ## Environment
 
-Copy `.env.example` to `.env` and fill it in. `GITHUB_TOKEN` is needed for GitHub Advisory enrichment; OSV works without it.
+Copy `.env.example` to `.env` and fill it in. `GITHUB_TOKEN` is needed for
+GitHub Advisory enrichment; OSV works without it. The HydraDB defaults match the
+compose stack, so a local run needs no edits.
 
 ```bash
 cp .env.example .env
+```
+
+## Load the fixture micro-slice
+
+With the stack up, load the deterministic micro-slice used by the tests and the
+fast demo path:
+
+```bash
+pnpm run seed:fixture
+pnpm run stats
 ```
 
 ## Checks
@@ -82,4 +80,5 @@ pnpm run test
 pnpm run check:claims
 ```
 
-`pnpm run ci` runs all four. Application commands (`seed:fixture`, `verify`, and the crawl and compile CLIs) are documented as the phases that add them land.
+`pnpm run ci` runs all four. The crawl and compile commands are documented as
+the phases that add them land.

@@ -1,0 +1,52 @@
+name: lazaret
+
+# HydraDB consumed unmodified as a network service. Pinned to the multi-arch
+# index digest so a judge on amd64 or arm64 resolves the same image.
+# graph-node serves queries and mutations; graph-indexer builds the reverse
+# adjacency CSC generations that make reverse expansion fast (DECISIONS ADR-0006).
+
+x-hydra-image: &hydra-image
+  image: ghcr.io/hydra-db/hydradb@sha256:db78309a233be54662db29744047e985a39b51c45a270d1a1f47c31a62cdb709
+  user: "${LAZARET_UID:?run through scripts/dev-up.sh}:${LAZARET_GID:?run through scripts/dev-up.sh}"
+  restart: on-failure
+  volumes:
+    - ./hydradb-data:/data
+
+x-hydra-store-env: &hydra-store-env
+  CLOUD_PROVIDER: local
+  LOCAL_PATH: /data/store
+  GRAPH_NAMESPACE: default
+  GRAPH_ID: default
+  GRAPH_CELL_ID: cell-0
+  GRAPH_CELLS: cell-0
+  GRAPH_NODE_ID: node-0
+  GRAPH_BOLT_NODE_ADDRESSES: node-0=127.0.0.1:7687
+  GRAPH_ADVERTISED_BOLT_ADDR: 127.0.0.1:7687
+  GRAPH_AUTH_TOKEN_FILE: /data/auth-token
+  GRAPH_ALLOW_PLAINTEXT: "true"
+  RUST_MIN_STACK: "33554432"
+
+services:
+  graph-node:
+    <<: *hydra-image
+    ports:
+      - "7687:7687"
+      - "8443:8443"
+      - "9090:9090"
+    environment:
+      <<: *hydra-store-env
+      GRAPH_DATA_CACHE_DIR: /data/cache-node
+
+  graph-indexer:
+    <<: *hydra-image
+    entrypoint: ["/usr/local/bin/graph-indexer"]
+    depends_on:
+      - graph-node
+    ports:
+      - "9091:9091"
+    environment:
+      <<: *hydra-store-env
+      GRAPH_DATA_CACHE_DIR: /data/cache-indexer
+      GRAPH_INDEXER_ADMIN_ADDR: 0.0.0.0:9091
+      GRAPH_INDEXER_BUILD_MODE: full
+      GRAPH_INDEXER_INTERVAL_MS: "3000"
