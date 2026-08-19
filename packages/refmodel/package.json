@@ -1,0 +1,21 @@
+{
+  "name": "@lazaret/refmodel",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.5.8",
+    "fast-check": "^3.23.1"
+  }
+}
