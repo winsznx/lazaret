@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+
+# env and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# hydradb local node data
+hydradb-data/
+.hydradb/
+
+# ingest working data (large crawl artifacts live here; fixtures are committed)
+data/
+.cache/
+
+# logs
+*.log
+logs/
+
+# test and coverage
+coverage/
+.vitest/
+
+# internal strategy, judge notes, PRD (never published)
+internal/
+
+# os and editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

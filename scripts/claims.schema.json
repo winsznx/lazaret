@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lazaret claim ledger",
+  "type": "object",
+  "required": ["claims"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/claim" }
+    }
+  },
+  "definitions": {
+    "claim": {
+      "type": "object",
+      "required": ["id", "statement", "rung", "value", "measuredAt", "evidence", "verify"],
+      "properties": {
+        "id": { "type": "string" },
+        "statement": { "type": "string" },
+        "rung": {
+          "type": "string",
+          "enum": [
+            "refmodel",
+            "unit",
+            "adversarial",
+            "fixture-slice",
+            "full-slice",
+            "incident-parity",
+            "hosted"
+          ]
+        },
+        "value": { "type": ["number", "string", "boolean"] },
+        "measuredAt": { "type": "string", "format": "date-time" },
+        "evidence": { "type": "string" },
+        "limitations": { "type": "string" },
+        "verify": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["type"],
+              "properties": { "type": { "const": "static" } }
+            },
+            {
+              "type": "object",
+              "required": ["type", "path", "expect"],
+              "properties": {
+                "type": { "const": "file" },
+                "path": { "type": "string" },
+                "pointer": { "type": "string" },
+                "expect": { "type": ["number", "string", "boolean"] }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["type", "url"],
+              "properties": {
+                "type": { "const": "http" },
+                "url": { "type": "string" },
+                "pointer": { "type": "string" },
+                "expect": { "type": ["number", "string", "boolean"] },
+                "expectStatus": { "type": "number" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

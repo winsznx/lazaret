@@ -1,0 +1,5 @@
+{
+  "$schema": "./scripts/claims.schema.json",
+  "description": "Every public numeric or factual claim Lazaret makes, with an evidence pointer and a machine check. pnpm check:claims re-verifies each claim and fails on drift.",
+  "claims": []
+}
