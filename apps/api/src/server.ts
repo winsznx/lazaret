@@ -89,13 +89,20 @@ export async function createServer(
         return { error: "unknown incident" }
       }
       const t = request.query.t !== undefined ? Number(request.query.t) : incident.windowEnd
+      const cypher =
+        "MATCH (a:Advisory {id: $adv})-[e:EXPOSES]->(v:Version) WHERE e.t_first <= $t RETURN v.pkg_name AS pkg, v.semver AS semver, e.depth AS depth, e.t_first AS t_first"
       const started = performance.now()
-      const members = await client.queryAll(
-        "MATCH (a:Advisory {id: $adv})-[e:EXPOSES]->(v:Version) WHERE e.t_first <= $t RETURN v.pkg_name AS pkg, v.semver AS semver, e.depth AS depth, e.t_first AS t_first",
-        { adv: nodeId("adv", incident.id), t },
-      )
+      const members = await client.queryAll(cypher, { adv: nodeId("adv", incident.id), t })
       const latencyMs = Math.round((performance.now() - started) * 10) / 10
-      return { incident: incident.id, t, count: members.length, latencyMs, members }
+      return {
+        incident: incident.id,
+        t,
+        count: members.length,
+        latencyMs,
+        consistency: "causal",
+        cypher,
+        members,
+      }
     },
   )
 

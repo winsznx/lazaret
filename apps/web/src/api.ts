@@ -23,6 +23,8 @@ export interface BlastResponse {
   t: number
   count: number
   latencyMs: number
+  consistency?: string
+  cypher?: string
   members: BlastMember[]
 }
 
