@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "gitSha": "87a0e4a",
+    "gitSha": "5243098",
     "hydraImage": "ghcr.io/hydra-db/hydradb@sha256:db78309a233be54662db29744047e985a39b51c45a270d1a1f47c31a62cdb709",
-    "generatedAt": "2026-08-20T15:54:59.558Z",
+    "generatedAt": "2026-08-20T16:06:36.774Z",
     "os": "darwin",
     "arch": "arm64",
     "node": "v24.19.0"

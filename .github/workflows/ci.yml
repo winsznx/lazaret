@@ -28,3 +28,22 @@ jobs:
       - run: pnpm run test
 
       - run: pnpm run check:claims
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Clean-room reproduction: boots the pinned HydraDB image, compiles the
+      # fixture incident, and asserts the compiled graph equals the reference
+      # model before re-checking the claim ledger. Proves the parity story on a
+      # runner with no developer state.
+      - run: bash scripts/repro.sh
+
