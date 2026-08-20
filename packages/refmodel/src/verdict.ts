@@ -51,13 +51,15 @@ export function verdict(
   advisory: Advisory,
   closure: Closure,
   snapshot: GraphSnapshot,
+  sliceNames?: Set<string>,
 ): ServiceVerdict {
   const byKey = new Map<string, VersionNode>()
-  const sliceNames = new Set<string>()
+  const derivedSlice = new Set<string>()
   for (const node of snapshot.versions) {
     byKey.set(versionKey(node.pkg, node.version), node)
-    sliceNames.add(node.pkg)
+    derivedSlice.add(node.pkg)
   }
+  const slice = sliceNames ?? derivedSlice
   const targetSet = new Set(advisory.targets.map((t) => versionKey(t.pkg, t.version)))
 
   const closureByPkg = new Map<string, ClosureMember[]>()
@@ -118,7 +120,7 @@ export function verdict(
       continue
     }
 
-    if (sliceNames.has(name)) {
+    if (slice.has(name)) {
       packages.push({ name, class: "CLEAN" })
     } else {
       packages.push({ name, class: "OUT_OF_SLICE" })

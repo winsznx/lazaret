@@ -1,0 +1,17 @@
+{
+  "name": "@lazaret/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@lazaret/graph-client": "workspace:*",
+    "@lazaret/refmodel": "workspace:*",
+    "fastify": "^5.2.0"
+  }
+}
