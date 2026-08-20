@@ -31,7 +31,7 @@ pnpm run api                       # http://127.0.0.1:8080
 pnpm --filter @lazaret/web dev     # http://127.0.0.1:5173
 ```
 
-Hosted demo and the 3-minute video: links land here once deployed to Cloudflare Pages and recorded. See [DEPLOYMENT.md](DEPLOYMENT.md).
+Live demo: [lazaret.pages.dev](https://lazaret.pages.dev), served from a single VPS running HydraDB behind a Cloudflare tunnel. The 3-minute video link lands here once recorded. See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## The problem
 
