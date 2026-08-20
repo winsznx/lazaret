@@ -133,3 +133,31 @@ export async function postVerdict(
     provenance?: Provenance
   }
 }
+
+export interface MaintainerReach {
+  login: string
+  packagesTotal: number
+  inSliceCount: number
+  inSlice: string[]
+}
+
+export interface SimilarCandidate {
+  target: string
+  candidate: string
+  distance: number
+  reason: string
+}
+
+export async function getMaintainers(incident: string): Promise<MaintainerReach[]> {
+  const data = await getJson<{ maintainers: MaintainerReach[] }>(
+    `/v1/maintainers/${encodeURIComponent(incident)}`,
+  )
+  return data.maintainers
+}
+
+export async function getSimilar(incident: string): Promise<SimilarCandidate[]> {
+  const data = await getJson<{ candidates: SimilarCandidate[] }>(
+    `/v1/similar/${encodeURIComponent(incident)}`,
+  )
+  return data.candidates
+}

@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { getBlast, getIncidents, getPath } from "./api"
-import type { BlastMember, IncidentSummary, PathMember } from "./api"
+import { getBlast, getIncidents, getMaintainers, getPath, getSimilar } from "./api"
+import type {
+  BlastMember,
+  IncidentSummary,
+  MaintainerReach,
+  PathMember,
+  SimilarCandidate,
+} from "./api"
 import { clock, dateTimeUtc, dateUtc, num } from "./lib"
 import { RadialExposureMap } from "./RadialExposureMap"
 import { Skeleton, Unavailable } from "./ui"
@@ -21,9 +27,14 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
   const [playing, setPlaying] = useState(false)
   const [selected, setSelected] = useState<BlastMember | null>(null)
   const [chain, setChain] = useState<PathMember[]>([])
-  const [frame, setFrame] = useState<{ latencyMs: number; count: number; cypher: string } | null>(
-    null,
-  )
+  const [maintainers, setMaintainers] = useState<MaintainerReach[]>([])
+  const [similar, setSimilar] = useState<SimilarCandidate[]>([])
+  const [frame, setFrame] = useState<{
+    latencyMs: number
+    count: number
+    queryCount: number
+    cypher: string
+  } | null>(null)
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
 
   useEffect(() => {
@@ -36,6 +47,16 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
         setIncident(found)
         setMembers(blast.members)
         setStatus("ready")
+        getMaintainers(incidentId)
+          .then((list) => {
+            if (!cancelled) setMaintainers(list)
+          })
+          .catch(() => undefined)
+        getSimilar(incidentId)
+          .then((list) => {
+            if (!cancelled) setSimilar(list)
+          })
+          .catch(() => undefined)
       })
       .catch(() => {
         if (!cancelled) setStatus("error")
@@ -117,6 +138,7 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
             setFrame({
               latencyMs: blast.latencyMs,
               count: blast.count,
+              queryCount: blast.queryCount ?? 1,
               cypher: blast.cypher ?? "",
             })
           }
@@ -197,9 +219,12 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
             }}
           >
             <span className="chip chip-neutral mono">
-              {frame !== null ? `${frame.latencyMs} ms query` : "…"}
+              {frame !== null ? `${frame.latencyMs} ms` : "…"}
             </span>
-            <span className="chip chip-neutral mono">HydraDB · causal</span>
+            <span className="chip chip-neutral mono">
+              {frame !== null ? `${frame.queryCount} HydraDB query` : "HydraDB"}
+            </span>
+            <span className="chip chip-neutral mono">fresh · causal</span>
           </div>
         </div>
       </div>
@@ -259,6 +284,8 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
           cypher={frame?.cypher ?? null}
         />
       </div>
+
+      <EnrichmentPanel maintainers={maintainers} similar={similar} />
     </div>
   )
 }
@@ -268,6 +295,85 @@ function MetaStat({ value, label }: { value: string; label: string }): JSX.Eleme
     <div>
       <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>{value}</div>
       <div className="meta">{label}</div>
+    </div>
+  )
+}
+
+function EnrichmentPanel({
+  maintainers,
+  similar,
+}: {
+  maintainers: MaintainerReach[]
+  similar: SimilarCandidate[]
+}): JSX.Element | null {
+  if (maintainers.length === 0 && similar.length === 0) return null
+  const totalReach = maintainers.reduce((sum, entry) => sum + entry.packagesTotal, 0)
+  return (
+    <div
+      style={{
+        marginTop: 22,
+        borderTop: "1px solid var(--cloud)",
+        paddingTop: 18,
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+        gap: 24,
+      }}
+    >
+      <div>
+        <div className="eyebrow">Compromised account reach</div>
+        <p className="meta" style={{ marginTop: 8, lineHeight: 1.55 }}>
+          The accounts behind the compromised packages maintain {num(totalReach)} packages in total.
+          The blast radius is the account, not just the package.
+        </p>
+        <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0" }}>
+          {maintainers.slice(0, 6).map((entry) => (
+            <li
+              key={entry.login}
+              className="mono"
+              style={{
+                fontSize: 12.5,
+                padding: "5px 0",
+                color: "var(--graphite)",
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+              }}
+            >
+              <span>{entry.login}</span>
+              <span className="muted">
+                {num(entry.packagesTotal)} pkgs · {entry.inSliceCount} in graph
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <div className="eyebrow">Similar-name candidates</div>
+        <p className="meta" style={{ marginTop: 8, lineHeight: 1.55 }}>
+          Names within a small edit distance of a compromised package. Confusion candidates, not
+          asserted typosquats.
+        </p>
+        {similar.length === 0 ? (
+          <p className="meta" style={{ marginTop: 10, color: "var(--fog)" }}>
+            None within edit distance in the crawled slice.
+          </p>
+        ) : (
+          <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0" }}>
+            {similar.slice(0, 8).map((entry) => (
+              <li
+                key={`${entry.target}-${entry.candidate}`}
+                className="mono"
+                style={{ fontSize: 12.5, padding: "5px 0", color: "var(--graphite)" }}
+              >
+                {entry.candidate}{" "}
+                <span className="muted">
+                  · edit distance {entry.distance} from {entry.target}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
