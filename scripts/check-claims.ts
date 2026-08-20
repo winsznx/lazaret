@@ -7,15 +7,13 @@ const REPO_ROOT = resolve(HERE, "..")
 const CLAIMS_PATH = resolve(REPO_ROOT, "claims.json")
 
 type Comparable = number | string | boolean
-
-interface StaticVerify {
-  type: "static"
-}
+type CompareOp = "eq" | "lte" | "gte"
 
 interface FileVerify {
   type: "file"
   path: string
   pointer?: string
+  op?: CompareOp
   expect: Comparable
 }
 
@@ -23,11 +21,12 @@ interface HttpVerify {
   type: "http"
   url: string
   pointer?: string
+  op?: CompareOp
   expect?: Comparable
   expectStatus?: number
 }
 
-type VerifySpec = StaticVerify | FileVerify | HttpVerify
+type VerifySpec = FileVerify | HttpVerify
 
 interface Claim {
   id: string
@@ -72,11 +71,24 @@ function resolvePointer(root: unknown, pointer: string | undefined): unknown {
   return current
 }
 
-function compare(actual: unknown, expected: Comparable): CheckResult {
-  const ok = actual === expected
+function compare(actual: unknown, expected: Comparable, op: CompareOp = "eq"): CheckResult {
+  if (op === "eq") {
+    const ok = actual === expected
+    return {
+      ok,
+      detail: ok
+        ? `matched ${JSON.stringify(expected)}`
+        : `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
+    }
+  }
+  if (typeof actual !== "number" || typeof expected !== "number") {
+    return { ok: false, detail: `op ${op} needs numbers, got ${JSON.stringify(actual)}` }
+  }
+  const ok = op === "lte" ? actual <= expected : actual >= expected
+  const symbol = op === "lte" ? "<=" : ">="
   return {
     ok,
-    detail: ok ? `matched ${JSON.stringify(expected)}` : `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
+    detail: ok ? `${actual} ${symbol} ${expected}` : `expected ${symbol} ${expected}, got ${actual}`,
   }
 }
 
@@ -85,7 +97,7 @@ async function verifyFile(spec: FileVerify): Promise<CheckResult> {
   const raw = await readFile(target, "utf8")
   const parsed: unknown = JSON.parse(raw)
   const actual = resolvePointer(parsed, spec.pointer)
-  return compare(actual, spec.expect)
+  return compare(actual, spec.expect, spec.op)
 }
 
 async function verifyHttp(spec: HttpVerify): Promise<CheckResult> {
@@ -98,17 +110,17 @@ async function verifyHttp(spec: HttpVerify): Promise<CheckResult> {
   }
   const parsed: unknown = await response.json()
   const actual = resolvePointer(parsed, spec.pointer)
-  return compare(actual, spec.expect)
+  return compare(actual, spec.expect, spec.op)
 }
 
 async function runVerify(spec: VerifySpec): Promise<CheckResult> {
   switch (spec.type) {
-    case "static":
-      return { ok: true, detail: "static claim, no live check" }
     case "file":
       return verifyFile(spec)
     case "http":
       return verifyHttp(spec)
+    default:
+      return { ok: false, detail: `unknown verify type ${JSON.stringify((spec as { type: unknown }).type)}` }
   }
 }
 

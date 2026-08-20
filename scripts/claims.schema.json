@@ -38,16 +38,12 @@
           "oneOf": [
             {
               "type": "object",
-              "required": ["type"],
-              "properties": { "type": { "const": "static" } }
-            },
-            {
-              "type": "object",
               "required": ["type", "path", "expect"],
               "properties": {
                 "type": { "const": "file" },
                 "path": { "type": "string" },
                 "pointer": { "type": "string" },
+                "op": { "type": "string", "enum": ["eq", "lte", "gte"] },
                 "expect": { "type": ["number", "string", "boolean"] }
               }
             },
@@ -58,6 +54,7 @@
                 "type": { "const": "http" },
                 "url": { "type": "string" },
                 "pointer": { "type": "string" },
+                "op": { "type": "string", "enum": ["eq", "lte", "gte"] },
                 "expect": { "type": ["number", "string", "boolean"] },
                 "expectStatus": { "type": "number" }
               }

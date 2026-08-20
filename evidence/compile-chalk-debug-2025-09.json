@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "gitSha": "87a0e4a",
+    "hydraImage": "ghcr.io/hydra-db/hydradb@sha256:db78309a233be54662db29744047e985a39b51c45a270d1a1f47c31a62cdb709",
+    "generatedAt": "2026-08-20T15:55:00.311Z",
+    "os": "darwin",
+    "arch": "arm64",
+    "node": "v24.19.0",
+    "apiBase": "http://127.0.0.1:8899"
+  },
+  "members": 983,
+  "depths": 6,
+  "depthHistogram": [
+    16,
+    480,
+    260,
+    119,
+    60,
+    48
+  ],
+  "capHit": false,
+  "reverseReads": 110,
+  "compileMs": 3411
+}

@@ -6,9 +6,9 @@ Built for Hack Hydra, Track 2A (supply-chain blast radius).
 
 ## The result
 
-Over a slice of the real npm graph (3,980 packages, 31,700 versions, 85,780 `DEPENDS_ON` edges in HydraDB), Lazaret compiles the real September 2025 chalk/debug worm, 16 registry-confirmed compromised versions, into a **983-version exposure closure across six depth levels in 3.4 seconds**. After that one-time compile, the blast radius at any minute of the incident returns in about **56 ms**, and any lockfile gets a verdict with a concrete evidence path such as `strip-ansi@7.1.1 -> @isaacs/cliui@8.0.2 -> jackspeak@4.0.0`.
+Over a slice of the real npm graph (3,980 packages, 31,700 versions, 85,780 `DEPENDS_ON` edges in HydraDB), Lazaret compiles the real September 2025 chalk/debug worm, 16 registry-confirmed compromised versions, into a **983-version exposure closure across six depth levels in 3.4 seconds**. After that one-time compile, the blast radius at any minute of the incident returns in tens of milliseconds warm (**72 ms median, 103 ms p95** over 100 samples), and any lockfile gets a verdict with a concrete evidence path such as `webpack-cli@7.2.1 -> ... -> debug@4.4.2`.
 
-Every number here lives in [`claims.json`](claims.json) and is re-checked by `pnpm check:claims`. A stale claim fails CI.
+Every number here lives in [`claims.json`](claims.json), is backed by a committed artifact under [`evidence/`](evidence/) that records the commit, HydraDB image digest, environment, and raw observations, and is re-checked by `pnpm check:claims`. A stale claim fails CI.
 
 ## Run it in two minutes
 

@@ -1,4 +1,6 @@
+import { execSync } from "node:child_process"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { arch, platform } from "node:os"
 import { resolve } from "node:path"
 import { configFromEnv, GraphClient, nodeId } from "@lazaret/graph-client"
 import { computeClosure } from "@lazaret/refmodel"
@@ -117,6 +119,31 @@ async function runCompile(client: GraphClient): Promise<void> {
   )
 }
 
+function evidenceMetadata(): Record<string, string> {
+  const read = (cmd: string): string => {
+    try {
+      return execSync(cmd, { cwd: REPO_ROOT }).toString().trim()
+    } catch {
+      return "unknown"
+    }
+  }
+  let hydraImage = "unknown"
+  try {
+    const compose = readFileSync(resolve(REPO_ROOT, "docker-compose.yml"), "utf8")
+    hydraImage = compose.match(/image:\s*(ghcr\.io\/hydra-db\/hydradb@sha256:[a-f0-9]+)/)?.[1] ?? "unknown"
+  } catch {
+    hydraImage = "unknown"
+  }
+  return {
+    gitSha: read("git rev-parse --short HEAD"),
+    hydraImage,
+    generatedAt: new Date().toISOString(),
+    os: platform(),
+    arch: arch(),
+    node: process.version,
+  }
+}
+
 async function verifyFixture(client: GraphClient): Promise<void> {
   const slice = readJson<NormalizedSlice>("fixtures/micro/slice.json")
   await loadSlice(client, slice)
@@ -128,6 +155,26 @@ async function verifyFixture(client: GraphClient): Promise<void> {
   console.log(
     `refmodel closure ${closure.members.size}, compiled EXPOSES ${compiled.size} in ${Math.round(result.ms)}ms`,
   )
+
+  // Emit the committed evidence artifact behind the fixture.parity claim. This
+  // is the live verification run itself producing the number, not a hand copy.
+  const evidenceDir = resolve(REPO_ROOT, "evidence")
+  mkdirSync(evidenceDir, { recursive: true })
+  writeFileSync(
+    resolve(evidenceDir, "parity-fixture.json"),
+    JSON.stringify(
+      {
+        metadata: evidenceMetadata(),
+        fixture: "tanstack-micro",
+        refmodelClosure: closure.members.size,
+        compiledExposes: compiled.size,
+        ok: parity.ok,
+      },
+      null,
+      2,
+    ),
+  )
+
   if (parity.ok) {
     console.log("PARITY OK: compiled EXPOSES equals the reference-model closure, depths match")
   } else {
