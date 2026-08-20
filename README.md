@@ -1,6 +1,6 @@
 # Lazaret
 
-Supply-chain blast radius over a HydraDB dependency graph. When an npm package is compromised, Lazaret answers which of your services were actually exposed, in milliseconds, with the dependency path as evidence, and replays the attack spreading through the real npm graph minute by minute.
+Lazaret is an npm incident-response compiler. It turns a package compromise into durable exposure state in HydraDB once, then answers which of your services were exposed, when, and through which dependency path, replaying the blast radius minute by minute. When it lacks graph coverage for a package, it abstains rather than calling it safe.
 
 Built for Hack Hydra, Track 2A (supply-chain blast radius).
 
@@ -19,7 +19,7 @@ pnpm run seed:fixture       # load the deterministic micro-slice
 pnpm run verify             # compiled EXPOSES == reference-model closure, exact, plus the claim checker
 ```
 
-`pnpm run verify` is the honesty check: it compiles the fixture incident into HydraDB and asserts the graph's `EXPOSES` set equals an independent in-memory reference resolver, exactly, depths and all.
+`pnpm run verify` is the honesty check: it compiles the fixture incident into HydraDB and asserts the graph's `EXPOSES` set equals an independent in-memory reference resolver, exactly, depths and all. From a clean clone, `pnpm run repro` does the whole thing in one command: it boots the pinned HydraDB image, runs that parity check, and re-verifies every claim in the ledger. CI runs it on a fresh runner.
 
 To see it at real scale with the UI:
 
@@ -49,15 +49,30 @@ An app-side compiler runs the exposure fixpoint, semver satisfaction plus a live
 
 HydraDB is the graph store and the traversal engine, not a cache in front of something else. The dependency graph of packages, versions, and `DEPENDS_ON` edges lives in HydraDB. The compiler's frontier expansion is a reverse-adjacency read against HydraDB, made fast by the `graph-indexer` that publishes CSC generations. The compiled `EXPOSES` and `EXPOSED_VIA` edges are written back with batched `UNWIND` mutations and read for every replay frame and every verdict. Remove HydraDB and there is no graph to traverse and nothing to replay.
 
+The boundary is explicit:
+
+| Responsibility | HydraDB | Lazaret |
+| --- | --- | --- |
+| package / version / `DEPENDS_ON` graph | stores it | ingests it |
+| reverse-dependency expansion | serves it live | orchestrates the frontier |
+| semver satisfaction | not expressible in the query surface | the compiler decides |
+| liveness window | supplies node properties | the compiler decides |
+| `EXPOSES` / `EXPOSED_VIA` / `MAINTAINS` / `SIMILAR_NAME` | durable graph writes | decides the rows |
+| blast radius at t, evidence path, verdict | live graph reads | renders |
+| independent oracle | not involved | `refmodel`, verification only |
+
+That last row is load-bearing. The production API answers from the compiled graph in HydraDB; a separate reference model recomputes the closure from the raw crawled records and shares no runtime code with production (an import-boundary test enforces it). Across a cohort of 55 real public lockfiles the two agree on every service verdict and on all 37,759 package classifications, so the graph answers are independently reproducible rather than self-certified.
+
 Lazaret runs HydraDB as an unmodified server over Bolt and HTTP, so Lazaret's own code stays MIT while HydraDB remains AGPL-3.0. See [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for the license boundary.
 
 ## What is here
 
-- `packages/refmodel`: the independent semver fixpoint and verdict oracle, no graph. 25 tests plus 1,500 property cases.
+- `packages/refmodel`: the verification-only semver fixpoint and verdict oracle, no graph and no production imports. 25 tests plus 1,500 property cases.
 - `packages/graph-client`: the typed HydraDB client, UNWIND batch writers and NDJSON streaming reads, 53-bit ids.
-- `apps/ingest`: the npm crawler, loader, and the advisory compiler, with a `verify` that proves parity against the reference model.
-- `apps/api`: the Fastify service, blast radius at t, evidence path, and lockfile verdicts.
+- `apps/ingest`: the npm crawler, loader, the advisory compiler, and the `enrich` pass that materializes maintainer reach and similar-name candidates. `verify` proves parity against the reference model.
+- `apps/api`: the Fastify service. Blast radius at t, evidence path, lockfile verdicts, maintainer reach, and similar names, each read live from HydraDB with query provenance attached.
 - `apps/web`: the Vite and React replay and verdict UI.
+- `scripts`: the claim checker, the evidence generator, the 55-lockfile parity campaign, and `repro.sh` for a clean-room reproduction.
 
 ## Verdict semantics
 
