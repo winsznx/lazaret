@@ -89,6 +89,54 @@
       "evidence": "evidence/benchmark-blast.json full.p95Ms over 100 samples.",
       "verify": { "type": "file", "path": "evidence/benchmark-blast.json", "pointer": "/full/p95Ms", "op": "lte", "expect": 250 },
       "limitations": "Local single-node HydraDB on Apple Silicon; absolute latency moves with hardware."
+    },
+    {
+      "id": "campaign.cohort",
+      "statement": "The evidence campaign runs against a deterministic cohort of 50 or more real public package-lock.json files, each pinned to a commit SHA.",
+      "rung": "campaign",
+      "value": 50,
+      "measuredAt": "2026-08-20T00:00:00Z",
+      "evidence": "fixtures/campaign/manifest.json lists every repo, commit, path and raw URL; scripts/campaign-run.ts records the cohort size in evidence/campaign-report.json.",
+      "verify": { "type": "file", "path": "evidence/campaign-report.json", "pointer": "/cohortSize", "op": "gte", "expect": 50 },
+      "limitations": "Cohort selected before any verdict was computed, from popular public npm repositories that commit a root lockfile."
+    },
+    {
+      "id": "campaign.service-agreement",
+      "statement": "Across the cohort, the production API and the independent reference model return the same service-level verdict for every lockfile.",
+      "rung": "campaign",
+      "value": 1,
+      "measuredAt": "2026-08-20T00:00:00Z",
+      "evidence": "evidence/campaign-report.json serviceAgreement.rate over the full cohort.",
+      "verify": { "type": "file", "path": "evidence/campaign-report.json", "pointer": "/serviceAgreement/rate", "op": "gte", "expect": 1 }
+    },
+    {
+      "id": "campaign.package-agreement",
+      "statement": "The two independent engines agree on at least 99.9% of individual package classifications across the cohort; the recorded run was 37759 of 37759.",
+      "rung": "campaign",
+      "value": 0.999,
+      "measuredAt": "2026-08-20T00:00:00Z",
+      "evidence": "evidence/campaign-report.json packageAgreement.rate; every disagreement, if any, is listed in the same file.",
+      "verify": { "type": "file", "path": "evidence/campaign-report.json", "pointer": "/packageAgreement/rate", "op": "gte", "expect": 0.999 },
+      "limitations": "Production reads the compiled graph in HydraDB; the reference model recomputes the closure from the original crawled records. Shared use of the semver specification is intentional."
+    },
+    {
+      "id": "path.evidence-audit",
+      "statement": "Every sampled exposed member's evidence path terminates at a real compromised advisory target.",
+      "rung": "campaign",
+      "value": 1,
+      "measuredAt": "2026-08-20T00:00:00Z",
+      "evidence": "evidence/path-audit.json passRate over 100 sampled members walked through /v1/path.",
+      "verify": { "type": "file", "path": "evidence/path-audit.json", "pointer": "/passRate", "op": "eq", "expect": 1 }
+    },
+    {
+      "id": "replay.p50",
+      "statement": "Replaying the blast radius across 100 timestamps returns a warm median well under 150 ms.",
+      "rung": "campaign",
+      "value": 150,
+      "measuredAt": "2026-08-20T00:00:00Z",
+      "evidence": "evidence/replay-latency.json warmP50Ms over 100 replay points, server-side HydraDB query time.",
+      "verify": { "type": "file", "path": "evidence/replay-latency.json", "pointer": "/warmP50Ms", "op": "lte", "expect": 150 },
+      "limitations": "Local single-node HydraDB on Apple Silicon; the cold first call is recorded separately in the same artifact."
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "gitSha": "0bd954f",
+    "generatedAt": "2026-08-20T16:53:38.189Z",
+    "os": "darwin",
+    "arch": "arm64",
+    "node": "v24.19.0",
+    "apiBase": "http://127.0.0.1:8899"
+  },
+  "incident": "chalk-debug-2025-09",
+  "points": 100,
+  "coldMs": 235,
+  "warmP50Ms": 65.7,
+  "warmP95Ms": 102,
+  "warmMinMs": 56.1,
+  "warmMaxMs": 114.6
+}

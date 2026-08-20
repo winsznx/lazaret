@@ -95,7 +95,7 @@ function seededClient(): ReadClient {
     async *queryStream(cypher: string): AsyncGenerator<Row> {
       if (cypher.includes("]->(v:Version)") && cypher.includes("EXPOSES")) {
         for (const row of exposesRows) yield row
-      } else if (cypher.includes(":Package")) {
+      } else if (cypher.includes("v.pkg_name AS name")) {
         for (const name of sliceNames) yield { name } as Row
       }
     },

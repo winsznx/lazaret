@@ -27,6 +27,7 @@
             "fixture-slice",
             "full-slice",
             "incident-parity",
+            "campaign",
             "hosted"
           ]
         },

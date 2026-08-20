@@ -31,7 +31,12 @@ const EXPOSED_VIA_CYPHER =
   "MATCH (c:Version {id: $cid})-[r:EXPOSED_VIA]->(p:Version) WHERE r.adv_low = $adv " +
   "RETURN p.pkg_name AS ppkg, p.semver AS psem"
 
-const SLICE_CYPHER = "MATCH (n:Package) RETURN n.name AS name"
+// "In slice" means Lazaret actually has coverage of the package: at least one
+// version node. The loader also materializes bare Package nodes for dependency
+// targets it never crawled, so counting Package labels would call coverage-less
+// packages CLEAN when the honest answer is OUT_OF_SLICE. Deriving the slice from
+// versioned packages keeps abstention truthful.
+const SLICE_CYPHER = "MATCH (v:Version) RETURN v.pkg_name AS name"
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value : ""

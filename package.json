@@ -23,6 +23,8 @@
     "verify": "tsx apps/ingest/src/cli.ts verify && pnpm run check:claims",
     "repro": "bash scripts/repro.sh",
     "evidence": "tsx scripts/gen-evidence.ts",
+    "campaign:fetch": "tsx scripts/campaign-fetch.ts",
+    "campaign:run": "tsx scripts/campaign-run.ts",
     "api": "tsx apps/api/src/index.ts",
     "ci": "pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run check:claims"
   },

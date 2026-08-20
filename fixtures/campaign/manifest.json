@@ -1,0 +1,502 @@
+{
+  "selectionRule": "Curated popular public npm-based GitHub repositories that commit a root package-lock.json. Each is fetched at its default-branch HEAD, the commit SHA is pinned at retrieval time, and only entries whose file resolves to a valid npm lockfile v2/v3 (a packages map) are kept in the manifest. Chosen before looking at any verdict result. The list favors widely-depended-on libraries so the cohort exercises chalk/debug/ansi-styles exposure as well as unrelated and out-of-slice packages.",
+  "generatedAt": "2026-08-20T16:30:41.665Z",
+  "count": 55,
+  "entries": [
+    {
+      "repo": "npm/cli",
+      "ref": "51c2bf81fa2c31547d0fec44fff2aaac3d9a9862",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/npm/cli/51c2bf81fa2c31547d0fec44fff2aaac3d9a9862/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:18.167Z",
+      "lockfileVersion": 3,
+      "packages": 1202
+    },
+    {
+      "repo": "axios/axios",
+      "ref": "84a9f3b9a4f3244b8c8e818f557d64c7b964fb25",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/axios/axios/84a9f3b9a4f3244b8c8e818f557d64c7b964fb25/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:21.790Z",
+      "lockfileVersion": 3,
+      "packages": 684
+    },
+    {
+      "repo": "winstonjs/winston",
+      "ref": "ff0b79de8562bb322c390fbc82fe71c11f373428",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/winstonjs/winston/ff0b79de8562bb322c390fbc82fe71c11f373428/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:28.382Z",
+      "lockfileVersion": 3,
+      "packages": 614
+    },
+    {
+      "repo": "socketio/socket.io",
+      "ref": "ae7fb46e08c5ed964b4a1ea8b1703e816511598e",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/socketio/socket.io/ae7fb46e08c5ed964b4a1ea8b1703e816511598e/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:30.202Z",
+      "lockfileVersion": 3,
+      "packages": 1297
+    },
+    {
+      "repo": "nestjs/nest",
+      "ref": "2fe907a90fe87cc8091d6e69e08431a01c3acfb8",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/nestjs/nest/2fe907a90fe87cc8091d6e69e08431a01c3acfb8/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:31.883Z",
+      "lockfileVersion": 3,
+      "packages": 1692
+    },
+    {
+      "repo": "mochajs/mocha",
+      "ref": "e6b9ee773481fd739ae24caeb42f32ac0b010f95",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/mochajs/mocha/e6b9ee773481fd739ae24caeb42f32ac0b010f95/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:41.983Z",
+      "lockfileVersion": 3,
+      "packages": 709
+    },
+    {
+      "repo": "chaijs/chai",
+      "ref": "099f48a326f0d77a0e4e9a34d7050b4217dd62d1",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/chaijs/chai/099f48a326f0d77a0e4e9a34d7050b4217dd62d1/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:43.643Z",
+      "lockfileVersion": 3,
+      "packages": 602
+    },
+    {
+      "repo": "rollup/rollup",
+      "ref": "e24957a6d37553bab48149ba0d7e20c476dfd294",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/rollup/rollup/e24957a6d37553bab48149ba0d7e20c476dfd294/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:51.705Z",
+      "lockfileVersion": 3,
+      "packages": 1236
+    },
+    {
+      "repo": "nodemailer/nodemailer",
+      "ref": "34bc3d88f3432aa1d697cef102a734215ead80ff",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/nodemailer/nodemailer/34bc3d88f3432aa1d697cef102a734215ead80ff/package-lock.json",
+      "retrievedAt": "2026-08-20T16:24:58.536Z",
+      "lockfileVersion": 3,
+      "packages": 181
+    },
+    {
+      "repo": "motdotla/dotenv",
+      "ref": "2fc7eac8ad77cbd5f7814355c7fa352dbcf3c358",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/motdotla/dotenv/2fc7eac8ad77cbd5f7814355c7fa352dbcf3c358/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:09.492Z",
+      "lockfileVersion": 2,
+      "packages": 753
+    },
+    {
+      "repo": "bcoe/c8",
+      "ref": "ae5a0cf4349b92cac910cf7275e724ab7a725b9d",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/bcoe/c8/ae5a0cf4349b92cac910cf7275e724ab7a725b9d/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:17.384Z",
+      "lockfileVersion": 2,
+      "packages": 420
+    },
+    {
+      "repo": "istanbuljs/nyc",
+      "ref": "908620475199fa7b9ea0ea8b21d6d8ad6921e3ae",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/istanbuljs/nyc/908620475199fa7b9ea0ea8b21d6d8ad6921e3ae/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:18.932Z",
+      "lockfileVersion": 3,
+      "packages": 944
+    },
+    {
+      "repo": "caolan/async",
+      "ref": "13dfaf13f3fc809ba1c9c39d5e267ac6959cbf4a",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/caolan/async/13dfaf13f3fc809ba1c9c39d5e267ac6959cbf4a/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:20.730Z",
+      "lockfileVersion": 3,
+      "packages": 827
+    },
+    {
+      "repo": "cheeriojs/cheerio",
+      "ref": "ed3b147438ffcb7ef80b63affcb5ca3c59e00c4d",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/cheeriojs/cheerio/ed3b147438ffcb7ef80b63affcb5ca3c59e00c4d/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:25.629Z",
+      "lockfileVersion": 3,
+      "packages": 434
+    },
+    {
+      "repo": "markedjs/marked",
+      "ref": "e250e31f3e1de80e41baf6f83ac8d3123d1e114f",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/markedjs/marked/e250e31f3e1de80e41baf6f83ac8d3123d1e114f/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:29.122Z",
+      "lockfileVersion": 3,
+      "packages": 653
+    },
+    {
+      "repo": "jsdom/jsdom",
+      "ref": "b23f10d526fb9f688e4847819d14dadd705c2972",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/jsdom/jsdom/b23f10d526fb9f688e4847819d14dadd705c2972/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:32.459Z",
+      "lockfileVersion": 3,
+      "packages": 284
+    },
+    {
+      "repo": "isaacs/node-glob",
+      "ref": "9f70854bd1d0bc7e715622a6df987f34d180248e",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/isaacs/node-glob/9f70854bd1d0bc7e715622a6df987f34d180248e/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:34.267Z",
+      "lockfileVersion": 3,
+      "packages": 404
+    },
+    {
+      "repo": "visionmedia/supertest",
+      "ref": "d7997513dcfb2f918e617f48ea4d56006aa0c3c3",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/visionmedia/supertest/d7997513dcfb2f918e617f48ea4d56006aa0c3c3/package-lock.json",
+      "retrievedAt": "2026-08-20T16:25:57.306Z",
+      "lockfileVersion": 3,
+      "packages": 621
+    },
+    {
+      "repo": "jshttp/cookie",
+      "ref": "51c485421a95ee796de6d8dab53a5ade0a20db8a",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/jshttp/cookie/51c485421a95ee796de6d8dab53a5ade0a20db8a/package-lock.json",
+      "retrievedAt": "2026-08-20T16:26:00.957Z",
+      "lockfileVersion": 3,
+      "packages": 281
+    },
+    {
+      "repo": "abhigyanpatwari/GitNexus",
+      "ref": "aac7515d2a8c50a1f8f923c6fb77218b333560d6",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/abhigyanpatwari/GitNexus/aac7515d2a8c50a1f8f923c6fb77218b333560d6/package-lock.json",
+      "retrievedAt": "2026-08-20T16:26:09.454Z",
+      "lockfileVersion": 3,
+      "packages": 210
+    },
+    {
+      "repo": "affaan-m/ECC",
+      "ref": "d8409a4b0813771235555e32e3d8046a73988bfa",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/affaan-m/ECC/d8409a4b0813771235555e32e3d8046a73988bfa/package-lock.json",
+      "retrievedAt": "2026-08-20T16:26:20.864Z",
+      "lockfileVersion": 3,
+      "packages": 216
+    },
+    {
+      "repo": "AMAI-GmbH/AI-Expert-Roadmap",
+      "ref": "a4c66c2670d9004385ed0faa4fb2a729aa6b18d4",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/AMAI-GmbH/AI-Expert-Roadmap/a4c66c2670d9004385ed0faa4fb2a729aa6b18d4/package-lock.json",
+      "retrievedAt": "2026-08-20T16:26:43.356Z",
+      "lockfileVersion": 2,
+      "packages": 1454
+    },
+    {
+      "repo": "ant-design/ant-design-pro",
+      "ref": "adfd44085738ca953573a13322c1ba84aca8b9e3",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/ant-design/ant-design-pro/adfd44085738ca953573a13322c1ba84aca8b9e3/package-lock.json",
+      "retrievedAt": "2026-08-20T16:26:59.096Z",
+      "lockfileVersion": 3,
+      "packages": 2362
+    },
+    {
+      "repo": "anuraghazra/github-readme-stats",
+      "ref": "54a7985aeefda00d5eadb55b80c17c7f976c37d2",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/anuraghazra/github-readme-stats/54a7985aeefda00d5eadb55b80c17c7f976c37d2/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:03.279Z",
+      "lockfileVersion": 2,
+      "packages": 635
+    },
+    {
+      "repo": "apache/echarts",
+      "ref": "30076aedcd7b7f65d8dd8e8d9ece46ce778133a3",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/apache/echarts/30076aedcd7b7f65d8dd8e8d9ece46ce778133a3/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:07.983Z",
+      "lockfileVersion": 2,
+      "packages": 988
+    },
+    {
+      "repo": "appwrite/appwrite",
+      "ref": "46e8cc7bbac0e9db3f84e4427bc7944097eb3fe9",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/appwrite/appwrite/46e8cc7bbac0e9db3f84e4427bc7944097eb3fe9/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:11.209Z",
+      "lockfileVersion": 3,
+      "packages": 2
+    },
+    {
+      "repo": "ascoders/weekly",
+      "ref": "9357b24e8b5dc367e67da0bafcd5cb040821bb10",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/ascoders/weekly/9357b24e8b5dc367e67da0bafcd5cb040821bb10/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:15.626Z",
+      "lockfileVersion": 2,
+      "packages": 140
+    },
+    {
+      "repo": "bigskysoftware/htmx",
+      "ref": "ad56dff71e55d9c717447437b4c942a64575d4b2",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/bigskysoftware/htmx/ad56dff71e55d9c717447437b4c942a64575d4b2/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:27.511Z",
+      "lockfileVersion": 3,
+      "packages": 619
+    },
+    {
+      "repo": "bmad-code-org/BMAD-METHOD",
+      "ref": "67d876f1c317a82123e429d0c078ff3c601a99a8",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/bmad-code-org/BMAD-METHOD/67d876f1c317a82123e429d0c078ff3c601a99a8/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:31.577Z",
+      "lockfileVersion": 3,
+      "packages": 969
+    },
+    {
+      "repo": "byoungd/up",
+      "ref": "73214b2ce82b99548e31e9ea27685be40ebc9901",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/byoungd/up/73214b2ce82b99548e31e9ea27685be40ebc9901/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:35.402Z",
+      "lockfileVersion": 3,
+      "packages": 304
+    },
+    {
+      "repo": "Chalarangelo/30-seconds-of-code",
+      "ref": "f1b2d5a65c32432a877de94a749be40a396ebed2",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/Chalarangelo/30-seconds-of-code/f1b2d5a65c32432a877de94a749be40a396ebed2/package-lock.json",
+      "retrievedAt": "2026-08-20T16:27:49.235Z",
+      "lockfileVersion": 3,
+      "packages": 551
+    },
+    {
+      "repo": "ChromeDevTools/chrome-devtools-mcp",
+      "ref": "8f25f69e79a50ffae7406ba70d76ba1fc0da3339",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/ChromeDevTools/chrome-devtools-mcp/8f25f69e79a50ffae7406ba70d76ba1fc0da3339/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:08.015Z",
+      "lockfileVersion": 3,
+      "packages": 544
+    },
+    {
+      "repo": "coder/code-server",
+      "ref": "2d5dbf0b77d88176e6d6ef828819bbaadb6955fb",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/coder/code-server/2d5dbf0b77d88176e6d6ef828819bbaadb6955fb/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:15.298Z",
+      "lockfileVersion": 3,
+      "packages": 488
+    },
+    {
+      "repo": "danny-avila/LibreChat",
+      "ref": "16e4d1419107a31c00fa23442ef07688e64d6366",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/danny-avila/LibreChat/16e4d1419107a31c00fa23442ef07688e64d6366/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:26.831Z",
+      "lockfileVersion": 3,
+      "packages": 3177
+    },
+    {
+      "repo": "DavidHDev/react-bits",
+      "ref": "4e0e030193b563be6be33d928f77d0d01cefe237",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/DavidHDev/react-bits/4e0e030193b563be6be33d928f77d0d01cefe237/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:29.254Z",
+      "lockfileVersion": 3,
+      "packages": 707
+    },
+    {
+      "repo": "denysdovhan/wtfjs",
+      "ref": "2c00c4a5759c3d8a37b1237619ea664c16ce90ee",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/denysdovhan/wtfjs/2c00c4a5759c3d8a37b1237619ea664c16ce90ee/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:37.458Z",
+      "lockfileVersion": 2,
+      "packages": 773
+    },
+    {
+      "repo": "diegosouzapw/OmniRoute",
+      "ref": "ff9a4c2fbd038bf442af9a9cfd96d707cb3f2db0",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/diegosouzapw/OmniRoute/ff9a4c2fbd038bf442af9a9cfd96d707cb3f2db0/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:40.023Z",
+      "lockfileVersion": 3,
+      "packages": 2712
+    },
+    {
+      "repo": "digitalocean/nginxconfig.io",
+      "ref": "dd290c0b706b8a8c2f86cfbffaae9c17715b431d",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/digitalocean/nginxconfig.io/dd290c0b706b8a8c2f86cfbffaae9c17715b431d/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:45.562Z",
+      "lockfileVersion": 2,
+      "packages": 1785
+    },
+    {
+      "repo": "docsifyjs/docsify",
+      "ref": "50992940f32b98469c2ffae5dddaa06c2927e98e",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/docsifyjs/docsify/50992940f32b98469c2ffae5dddaa06c2927e98e/package-lock.json",
+      "retrievedAt": "2026-08-20T16:28:53.110Z",
+      "lockfileVersion": 3,
+      "packages": 1495
+    },
+    {
+      "repo": "drawdb-io/drawdb",
+      "ref": "5c46fb8b7943a2399fff14a7b1fa230c552f3314",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/drawdb-io/drawdb/5c46fb8b7943a2399fff14a7b1fa230c552f3314/package-lock.json",
+      "retrievedAt": "2026-08-20T16:29:02.013Z",
+      "lockfileVersion": 3,
+      "packages": 597
+    },
+    {
+      "repo": "earendil-works/pi",
+      "ref": "5cd93f688aaab89dbb6dfa4aca535f21796ae185",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/earendil-works/pi/5cd93f688aaab89dbb6dfa4aca535f21796ae185/package-lock.json",
+      "retrievedAt": "2026-08-20T16:29:03.688Z",
+      "lockfileVersion": 3,
+      "packages": 426
+    },
+    {
+      "repo": "eyaltoledano/claude-task-master",
+      "ref": "c0c98d367c55296bfe69e65680625b6db437af02",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/eyaltoledano/claude-task-master/c0c98d367c55296bfe69e65680625b6db437af02/package-lock.json",
+      "retrievedAt": "2026-08-20T16:29:28.294Z",
+      "lockfileVersion": 3,
+      "packages": 2623
+    },
+    {
+      "repo": "gchq/CyberChef",
+      "ref": "2e048b0290854781db61e20638dca62978379032",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/gchq/CyberChef/2e048b0290854781db61e20638dca62978379032/package-lock.json",
+      "retrievedAt": "2026-08-20T16:29:51.143Z",
+      "lockfileVersion": 3,
+      "packages": 1503
+    },
+    {
+      "repo": "GitSquared/edex-ui",
+      "ref": "04a00c4079908788b371c6ecdefff96d0d9950f8",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/GitSquared/edex-ui/04a00c4079908788b371c6ecdefff96d0d9950f8/package-lock.json",
+      "retrievedAt": "2026-08-20T16:29:56.642Z",
+      "lockfileVersion": 2,
+      "packages": 433
+    },
+    {
+      "repo": "google-gemini/gemini-cli",
+      "ref": "e90c63fa158b8facd1872d32b34b07e516308f2b",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/google-gemini/gemini-cli/e90c63fa158b8facd1872d32b34b07e516308f2b/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:01.570Z",
+      "lockfileVersion": 3,
+      "packages": 1505
+    },
+    {
+      "repo": "google/zx",
+      "ref": "65fc542d88baac578967e22bea28cb610976578c",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/google/zx/65fc542d88baac578967e22bea28cb610976578c/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:03.882Z",
+      "lockfileVersion": 3,
+      "packages": 581
+    },
+    {
+      "repo": "gorhill/uBlock",
+      "ref": "39a0106ffc27837410108f66ce2e4a84e3a973b3",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/gorhill/uBlock/39a0106ffc27837410108f66ce2e4a84e3a973b3/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:08.111Z",
+      "lockfileVersion": 3,
+      "packages": 92
+    },
+    {
+      "repo": "gsd-build/get-shit-done",
+      "ref": "bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/gsd-build/get-shit-done/bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:11.780Z",
+      "lockfileVersion": 3,
+      "packages": 165
+    },
+    {
+      "repo": "h5bp/html5-boilerplate",
+      "ref": "b8071d80d0e90f187adeeccfbda67852097c6c30",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/h5bp/html5-boilerplate/b8071d80d0e90f187adeeccfbda67852097c6c30/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:14.944Z",
+      "lockfileVersion": 3,
+      "packages": 377
+    },
+    {
+      "repo": "hakimel/reveal.js",
+      "ref": "a3b940695648aa1c5b0680bc9a5b905cf43020e5",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/hakimel/reveal.js/a3b940695648aa1c5b0680bc9a5b905cf43020e5/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:18.298Z",
+      "lockfileVersion": 3,
+      "packages": 319
+    },
+    {
+      "repo": "hexojs/hexo",
+      "ref": "059cb17494d0632a053c24077f5bcb6ae92acc51",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/hexojs/hexo/059cb17494d0632a053c24077f5bcb6ae92acc51/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:21.457Z",
+      "lockfileVersion": 3,
+      "packages": 694
+    },
+    {
+      "repo": "HeyPuter/puter",
+      "ref": "9809e428b565e59bbef79af93d3306e04b243a4c",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/HeyPuter/puter/9809e428b565e59bbef79af93d3306e04b243a4c/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:26.574Z",
+      "lockfileVersion": 3,
+      "packages": 1472
+    },
+    {
+      "repo": "iamkun/dayjs",
+      "ref": "0f6c19e3b63bcc3ff74917cb3a60125020c75648",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/iamkun/dayjs/0f6c19e3b63bcc3ff74917cb3a60125020c75648/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:30.368Z",
+      "lockfileVersion": 2,
+      "packages": 2014
+    },
+    {
+      "repo": "impress/impress.js",
+      "ref": "b44b9694b41fd2c076c3d1ad7a0c3e0cea9eb262",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/impress/impress.js/b44b9694b41fd2c076c3d1ad7a0c3e0cea9eb262/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:36.924Z",
+      "lockfileVersion": 2,
+      "packages": 595
+    },
+    {
+      "repo": "ionic-team/ionic-framework",
+      "ref": "d41f25860dcb9a71a40226973cca9ca223b7f7ca",
+      "path": "package-lock.json",
+      "rawUrl": "https://raw.githubusercontent.com/ionic-team/ionic-framework/d41f25860dcb9a71a40226973cca9ca223b7f7ca/package-lock.json",
+      "retrievedAt": "2026-08-20T16:30:41.665Z",
+      "lockfileVersion": 2,
+      "packages": 644
+    }
+  ]
+}

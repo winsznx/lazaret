@@ -21,6 +21,10 @@ hydradb-data/
 data/
 .cache/
 
+# fetched campaign lockfiles (large; the manifest and report are committed and
+# every entry is re-fetchable from its pinned commit SHA)
+fixtures/campaign/lockfiles/
+
 # logs
 *.log
 logs/
