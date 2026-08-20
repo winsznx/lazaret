@@ -78,6 +78,14 @@ Lazaret runs HydraDB as an unmodified server over Bolt and HTTP, so Lazaret's ow
 
 For each service in an uploaded lockfile, per incident: `EXPOSED_PINNED` (the tree resolves a compromised version), `EXPOSED_WINDOW` (a declared range would resolve into the attack), `CLEAN` (in the slice and neither fires), or `OUT_OF_SLICE` (a referenced package is outside the slice, so Lazaret abstains rather than guessing). Uploaded lockfiles are processed in memory and never stored (see [SECURITY.md](SECURITY.md)).
 
+## Check a lockfile from the command line
+
+```bash
+pnpm lazaret check path/to/package-lock.json --incident chalk-debug-2025-09
+```
+
+The CLI sends the lockfile to the hosted API, prints the verdict with evidence and read provenance, and exits non-zero when the service is exposed, so it drops into a CI step. Point it elsewhere with `--api` or `LAZARET_API`. The web, the API, and the CLI all read the same compiled graph.
+
 ## Limitations
 
 - The slice is a bounded crawl seeded from npm-high-impact plus the incident packages, not all of npm. Every claim says "a slice of N", never "all of npm".
