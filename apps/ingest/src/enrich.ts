@@ -1,11 +1,7 @@
-import { readFileSync } from "node:fs"
-import { resolve } from "node:path"
 import { edgeId, nodeId } from "@lazaret/graph-client"
 import type { GraphClient } from "@lazaret/graph-client"
 import pLimit from "p-limit"
-import { REPO_ROOT } from "./env"
 import type { Incident } from "./incident"
-import type { PackageRecord } from "./records"
 
 const REGISTRY = process.env.NPM_REGISTRY ?? "https://registry.npmjs.org"
 
@@ -109,14 +105,16 @@ function editDistanceAtMost(a: string, b: string, max: number): number {
   return prev[b.length] as number
 }
 
-function sliceNames(): string[] {
-  const dir = resolve(REPO_ROOT, "data/slice")
-  const out: string[] = []
-  for (const line of readFileSync(resolve(dir, "packages.jsonl"), "utf8").split("\n")) {
-    const trimmed = line.trim()
-    if (trimmed.length > 0) out.push((JSON.parse(trimmed) as PackageRecord).name)
+// The slice, for both the in-slice maintainer filter and the similar-name
+// search, is the set of packages with version coverage in the graph. Reading it
+// from HydraDB (rather than the crawl files) lets enrich run on any node that
+// has the slice loaded, including the deployed one.
+async function graphSliceNames(client: GraphClient): Promise<Set<string>> {
+  const names = new Set<string>()
+  for await (const row of client.queryStream("MATCH (v:Version) RETURN v.pkg_name AS name")) {
+    if (typeof row["name"] === "string") names.add(row["name"])
   }
-  return out
+  return names
 }
 
 export async function enrichIncident(
@@ -125,8 +123,8 @@ export async function enrichIncident(
   maxDistance = 2,
 ): Promise<EnrichResult> {
   const targetPkgs = [...new Set(incident.targets.map((t) => t.pkg))]
-  const names = sliceNames()
-  const inSlice = new Set(names)
+  const inSlice = await graphSliceNames(client)
+  const names = [...inSlice]
 
   // Maintainers of the compromised packages, and each account's reach.
   const limit = pLimit(8)
