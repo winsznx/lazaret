@@ -1,0 +1,72 @@
+name: lazaret-prod
+
+# Production stack for a single VPS. HydraDB (node + indexer) and the API run on
+# a private network; only cloudflared reaches out, so no inbound ports are
+# opened. The web is deployed separately to Cloudflare Pages and calls the API
+# through the tunnel hostname. See DEPLOYMENT.md.
+
+x-hydra-image: &hydra-image
+  image: ghcr.io/hydra-db/hydradb@sha256:db78309a233be54662db29744047e985a39b51c45a270d1a1f47c31a62cdb709
+  user: "${LAZARET_UID:?set LAZARET_UID}:${LAZARET_GID:?set LAZARET_GID}"
+  restart: unless-stopped
+  volumes:
+    - ./prod-data:/data
+
+x-hydra-store-env: &hydra-store-env
+  CLOUD_PROVIDER: local
+  LOCAL_PATH: /data/store
+  GRAPH_NAMESPACE: default
+  GRAPH_ID: default
+  GRAPH_CELL_ID: cell-0
+  GRAPH_CELLS: cell-0
+  GRAPH_NODE_ID: node-0
+  GRAPH_BOLT_NODE_ADDRESSES: node-0=graph-node:7687
+  GRAPH_ADVERTISED_BOLT_ADDR: graph-node:7687
+  GRAPH_AUTH_TOKEN_FILE: /data/auth-token
+  GRAPH_ALLOW_PLAINTEXT: "true"
+  RUST_MIN_STACK: "33554432"
+
+services:
+  graph-node:
+    <<: *hydra-image
+    environment:
+      <<: *hydra-store-env
+      GRAPH_BOLT_ADDR: 0.0.0.0:7687
+      GRAPH_HTTP_ADDR: 0.0.0.0:8443
+      GRAPH_ADMIN_ADDR: 0.0.0.0:9090
+      GRAPH_DATA_CACHE_DIR: /data/cache-node
+
+  graph-indexer:
+    <<: *hydra-image
+    entrypoint: ["/usr/local/bin/graph-indexer"]
+    depends_on: [graph-node]
+    environment:
+      <<: *hydra-store-env
+      GRAPH_DATA_CACHE_DIR: /data/cache-indexer
+      GRAPH_INDEXER_ADMIN_ADDR: 0.0.0.0:9091
+      GRAPH_INDEXER_BUILD_MODE: full
+      GRAPH_INDEXER_INTERVAL_MS: "5000"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    depends_on: [graph-node]
+    environment:
+      HYDRADB_HTTP_URL: http://graph-node:8443
+      HYDRADB_BOLT_URL: bolt://graph-node:7687
+      HYDRADB_AUTH_TOKEN: ${HYDRADB_AUTH_TOKEN:?set HYDRADB_AUTH_TOKEN}
+      HYDRADB_GRAPH: default
+      HYDRADB_NAMESPACE: default
+      HYDRADB_CELL_ID: cell-0
+      HOST: 0.0.0.0
+      PORT: "8080"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:?set CF_TUNNEL_TOKEN}
+    depends_on: [api]

@@ -1,0 +1,8 @@
+# Caddy in front of the API, for the domain-on-VPS alternative to a tunnel.
+# Point api.lazaret.<your-domain> DNS at the VPS, then run Caddy with this file.
+# Caddy fetches a Let's Encrypt certificate automatically.
+
+api.lazaret.example.com {
+	reverse_proxy api:8080
+	encode zstd gzip
+}

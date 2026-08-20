@@ -37,3 +37,6 @@ internal/
 .idea/
 .vscode/
 *.swp
+
+# production data volume (VPS)
+prod-data/
