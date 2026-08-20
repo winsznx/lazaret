@@ -1,4 +1,4 @@
-import type { Lockfile, LockfileEntry } from "@lazaret/refmodel"
+import type { Lockfile, LockfileEntry } from "./types"
 
 // npm package names: optional @scope/, no leading dot or underscore, url-safe.
 const NAME_PATTERN = /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/i

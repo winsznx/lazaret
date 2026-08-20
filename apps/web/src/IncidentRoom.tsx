@@ -134,7 +134,7 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
       setSelected(member)
       setChain([])
       getPath(incidentId, member.pkg, member.semver)
-        .then((path) => setChain(path))
+        .then((res) => setChain(res.chain))
         .catch(() => setChain([]))
     },
     [incidentId],

@@ -18,11 +18,23 @@ export interface BlastMember {
   t_first: number
 }
 
+export interface Provenance {
+  hydraMs: number
+  queryCount: number
+  cached: boolean
+  fresh: boolean
+  cypher: string
+}
+
 export interface BlastResponse {
   incident: string
   t: number
   count: number
   latencyMs: number
+  hydraMs?: number
+  queryCount?: number
+  cached?: boolean
+  fresh?: boolean
   consistency?: string
   cypher?: string
   members: BlastMember[]
@@ -35,6 +47,14 @@ export interface PathMember {
   tFirst: number
 }
 
+export interface PathResponse {
+  incident: string
+  pkg: string
+  version: string
+  chain: PathMember[]
+  provenance?: Provenance
+}
+
 export type PackageClass = "EXPOSED_PINNED" | "EXPOSED_WINDOW" | "CLEAN" | "OUT_OF_SLICE"
 
 export interface PackageVerdict {
@@ -43,6 +63,7 @@ export interface PackageVerdict {
   pinnedVersion?: string
   admittedVersion?: string
   admittingRange?: string
+  reason?: string
   chain?: { pkg: string; version: string }[]
 }
 
@@ -85,18 +106,19 @@ export async function getPath(
   incident: string,
   pkg: string,
   version: string,
-): Promise<PathMember[]> {
-  const data = await getJson<{ chain: PathMember[] }>(
+): Promise<PathResponse> {
+  return getJson<PathResponse>(
     `/v1/path/${encodeURIComponent(incident)}?pkg=${encodeURIComponent(pkg)}&version=${encodeURIComponent(version)}`,
   )
-  return data.chain
 }
 
 export async function postVerdict(
   incident: string,
   lockfiles: { service: string; lockfile: unknown }[],
-): Promise<{ incident: string; verdicts: ServiceVerdict[] }> {
-  const response = await fetch(`${API_BASE}/v1/verdict`, {
+  fresh = false,
+): Promise<{ incident: string; verdicts: ServiceVerdict[]; provenance?: Provenance }> {
+  const suffix = fresh ? "?fresh=1" : ""
+  const response = await fetch(`${API_BASE}/v1/verdict${suffix}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ incident, lockfiles }),
@@ -105,5 +127,9 @@ export async function postVerdict(
     const detail = await response.text()
     throw new Error(`verdict failed: ${response.status} ${detail.slice(0, 200)}`)
   }
-  return (await response.json()) as { incident: string; verdicts: ServiceVerdict[] }
+  return (await response.json()) as {
+    incident: string
+    verdicts: ServiceVerdict[]
+    provenance?: Provenance
+  }
 }
