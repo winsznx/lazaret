@@ -56,3 +56,23 @@ export interface ExposedViaInput {
   advLow: number
   advHigh: number
 }
+
+export interface MaintainerInput {
+  id: number
+  login: string
+  total: number
+}
+
+export interface MaintainsInput {
+  maintainerId: number
+  pkgId: number
+  rid: number
+}
+
+export interface SimilarNameInput {
+  fromPkgId: number
+  toPkgId: number
+  rid: number
+  distance: number
+  reason: string
+}

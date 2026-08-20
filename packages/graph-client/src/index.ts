@@ -12,7 +12,10 @@ export type {
   ExposedViaInput,
   ExposesInput,
   HasVersionInput,
+  MaintainerInput,
+  MaintainsInput,
   PackageInput,
+  SimilarNameInput,
   TargetsInput,
   VersionInput,
 } from "./schema"

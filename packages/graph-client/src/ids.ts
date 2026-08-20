@@ -14,7 +14,7 @@ export function hashId(input: string): number {
   return Number(acc & MASK_53)
 }
 
-export type NodeKind = "pkg" | "ver" | "adv"
+export type NodeKind = "pkg" | "ver" | "adv" | "usr"
 
 export function nodeId(kind: NodeKind, key: string): number {
   return hashId(`${kind}:${key}`)

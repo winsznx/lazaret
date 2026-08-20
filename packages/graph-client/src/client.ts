@@ -9,7 +9,10 @@ import type {
   ExposedViaInput,
   ExposesInput,
   HasVersionInput,
+  MaintainerInput,
+  MaintainsInput,
   PackageInput,
+  SimilarNameInput,
   TargetsInput,
   VersionInput,
 } from "./schema"
@@ -169,6 +172,37 @@ export class GraphClient {
         rid: neo4j.int(r.rid),
         adv_low: neo4j.int(r.advLow),
         adv_high: neo4j.int(r.advHigh),
+      })),
+    )
+  }
+
+  upsertMaintainers(rows: MaintainerInput[]): Promise<void> {
+    return this.writeBatch(
+      "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Maintainer, n.login = row.login, n.packages_total = row.packages_total",
+      rows.map((r) => ({ id: neo4j.int(r.id), login: r.login, packages_total: neo4j.int(r.total) })),
+    )
+  }
+
+  upsertMaintains(rows: MaintainsInput[]): Promise<void> {
+    return this.writeBatch(
+      "UNWIND $rows AS row MATCH (m:Maintainer {id: row.m}), (p:Package {id: row.p}) MERGE (m)-[r:MAINTAINS {id: row.rid}]->(p)",
+      rows.map((r) => ({
+        m: neo4j.int(r.maintainerId),
+        p: neo4j.int(r.pkgId),
+        rid: neo4j.int(r.rid),
+      })),
+    )
+  }
+
+  upsertSimilarNames(rows: SimilarNameInput[]): Promise<void> {
+    return this.writeBatch(
+      "UNWIND $rows AS row MATCH (a:Package {id: row.a}), (b:Package {id: row.b}) MERGE (a)-[r:SIMILAR_NAME {id: row.rid}]->(b) SET r.distance = row.distance, r.reason = row.reason",
+      rows.map((r) => ({
+        a: neo4j.int(r.fromPkgId),
+        b: neo4j.int(r.toPkgId),
+        rid: neo4j.int(r.rid),
+        distance: neo4j.int(r.distance),
+        reason: r.reason,
       })),
     )
   }

@@ -196,5 +196,73 @@ export async function createServer(
     return { packages, versions, advisories, incidents: incidents.length }
   })
 
+  // The maintainer accounts behind the compromised packages, and each account's
+  // reach. Read live from the MAINTAINS edges: this is the blast radius of the
+  // account, not just the package.
+  app.get<{ Params: { incident: string } }>("/v1/maintainers/:incident", async (request, reply) => {
+    const incident = byId.get(request.params.incident)
+    if (incident === undefined) {
+      reply.code(404)
+      return { error: "unknown incident" }
+    }
+    const accounts = new Map<string, { login: string; mid: number; packagesTotal: number }>()
+    for (const pkg of new Set(incident.targets.map((t) => t.pkg))) {
+      const rows = await client.queryAll(
+        "MATCH (m:Maintainer)-[e:MAINTAINS]->(p:Package {id: $pid}) RETURN m.login AS login, m.id AS mid, m.packages_total AS total",
+        { pid: nodeId("pkg", pkg) },
+      )
+      for (const row of rows) {
+        const login = typeof row["login"] === "string" ? row["login"] : ""
+        const mid = typeof row["mid"] === "number" ? row["mid"] : 0
+        const total = typeof row["total"] === "number" ? row["total"] : 0
+        if (login.length > 0) accounts.set(login, { login, mid, packagesTotal: total })
+      }
+    }
+    const maintainers = []
+    for (const account of accounts.values()) {
+      const owned = await client.queryAll(
+        "MATCH (m:Maintainer {id: $mid})-[e:MAINTAINS]->(p:Package) RETURN p.name AS name",
+        { mid: account.mid },
+      )
+      const inSlice = owned
+        .map((row) => (typeof row["name"] === "string" ? row["name"] : ""))
+        .filter((name) => name.length > 0)
+        .sort()
+      maintainers.push({
+        login: account.login,
+        packagesTotal: account.packagesTotal,
+        inSliceCount: inSlice.length,
+        inSlice,
+      })
+    }
+    maintainers.sort((a, b) => b.packagesTotal - a.packagesTotal)
+    return { incident: incident.id, maintainers }
+  })
+
+  // Packages whose names sit within a small edit distance of a compromised
+  // package. Surfaced as confusion candidates, never asserted typosquats.
+  app.get<{ Params: { incident: string } }>("/v1/similar/:incident", async (request, reply) => {
+    const incident = byId.get(request.params.incident)
+    if (incident === undefined) {
+      reply.code(404)
+      return { error: "unknown incident" }
+    }
+    const candidates: { target: string; candidate: string; distance: number; reason: string }[] = []
+    for (const pkg of new Set(incident.targets.map((t) => t.pkg))) {
+      const rows = await client.queryAll(
+        "MATCH (t:Package {id: $pid})-[r:SIMILAR_NAME]->(c:Package) RETURN c.name AS name, r.distance AS distance, r.reason AS reason",
+        { pid: nodeId("pkg", pkg) },
+      )
+      for (const row of rows) {
+        const candidate = typeof row["name"] === "string" ? row["name"] : ""
+        const distance = typeof row["distance"] === "number" ? row["distance"] : 0
+        const reason = typeof row["reason"] === "string" ? row["reason"] : ""
+        if (candidate.length > 0) candidates.push({ target: pkg, candidate, distance, reason })
+      }
+    }
+    candidates.sort((a, b) => a.distance - b.distance || a.candidate.localeCompare(b.candidate))
+    return { incident: incident.id, candidates }
+  })
+
   return app
 }

@@ -6,6 +6,7 @@ import { configFromEnv, GraphClient, nodeId } from "@lazaret/graph-client"
 import { computeClosure } from "@lazaret/refmodel"
 import { compileIncident } from "./compiler"
 import { crawl } from "./crawler"
+import { enrichIncident } from "./enrich"
 import { loadDotenv, REPO_ROOT } from "./env"
 import { loadIncident } from "./incident"
 import { loadSlice } from "./loader"
@@ -119,6 +120,19 @@ async function runCompile(client: GraphClient): Promise<void> {
   )
 }
 
+async function runEnrich(client: GraphClient): Promise<void> {
+  const incident = loadIncident(argValue("incident", "fixtures/incidents/chalk-debug-2025-09.json"))
+  const result = await enrichIncident(client, incident)
+  const reportDir = resolve(REPO_ROOT, "data")
+  mkdirSync(reportDir, { recursive: true })
+  writeFileSync(resolve(reportDir, `enrich-${incident.id}.json`), JSON.stringify(result, null, 2))
+  const totalReach = result.maintainers.reduce((sum, entry) => sum + entry.total, 0)
+  console.log(
+    `enriched ${incident.id}: ${result.maintainers.length} maintainer account(s) controlling ` +
+      `${totalReach} packages total, ${result.similar.length} similar-name candidate(s)`,
+  )
+}
+
 function evidenceMetadata(): Record<string, string> {
   const read = (cmd: string): string => {
     try {
@@ -215,6 +229,9 @@ async function main(): Promise<void> {
       case "compile":
         await runCompile(client)
         break
+      case "enrich":
+        await runEnrich(client)
+        break
       case "verify":
         await verifyFixture(client)
         break
@@ -222,7 +239,9 @@ async function main(): Promise<void> {
         await dependents(client)
         break
       default:
-        console.log("usage: cli <seed-fixture|stats|crawl|load-dir|compile|verify|dependents>")
+        console.log(
+          "usage: cli <seed-fixture|stats|crawl|load-dir|compile|enrich|verify|dependents>",
+        )
     }
   } finally {
     await client.close()
