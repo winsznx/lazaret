@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { getBlast, getIncidents, getPath } from "./api"
 import type { BlastMember, IncidentSummary, PathMember } from "./api"
-import { clock, dateTimeUtc, num } from "./lib"
+import { clock, dateTimeUtc, dateUtc, num } from "./lib"
 import { RadialExposureMap } from "./RadialExposureMap"
 import { Skeleton, Unavailable } from "./ui"
 
@@ -45,43 +45,66 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
     }
   }, [incidentId])
 
-  const { tMin, tMax, maxDepth } = useMemo(() => {
-    if (members.length === 0) return { tMin: 0, tMax: 1, maxDepth: 0 }
-    let lo = Infinity
-    let hi = -Infinity
+  const maxDepth = useMemo(() => {
     let depth = 0
-    for (const member of members) {
-      lo = Math.min(lo, member.t_first)
-      hi = Math.max(hi, member.t_first)
-      depth = Math.max(depth, member.depth)
-    }
-    return { tMin: lo, tMax: hi === lo ? lo + 1 : hi, maxDepth: depth }
+    for (const member of members) depth = Math.max(depth, member.depth)
+    return depth
   }, [members])
 
-  const effectiveT = t ?? tMax
+  // The timeline axis is the detection window itself, compromise to detected.
+  // Member exposure times trail for months past detection, so using their full
+  // span would crush the two-hour window into a single pixel and pile the two
+  // marks on top of each other.
+  const axis = useMemo(() => {
+    if (incident === null) return { min: 0, max: 1 }
+    const min = incident.windowStart
+    const max = incident.windowEnd > incident.windowStart ? incident.windowEnd : min + 1
+    return { min, max }
+  }, [incident])
+
+  const windowLabel = useMemo(() => {
+    const seconds = axis.max - axis.min
+    if (seconds < 3600) return `${Math.max(1, Math.round(seconds / 60))}-minute`
+    return `${Math.round(seconds / 3600)}-hour`
+  }, [axis])
+
+  const tail = useMemo(() => {
+    if (incident === null) return { inWindow: 0, afterWindow: 0, last: 0 }
+    let inWindow = 0
+    let afterWindow = 0
+    let last = 0
+    for (const member of members) {
+      if (member.t_first <= incident.windowEnd) inWindow += 1
+      else afterWindow += 1
+      if (member.t_first > last) last = member.t_first
+    }
+    return { inWindow, afterWindow, last }
+  }, [incident, members])
+
+  const effectiveT = t ?? axis.max
 
   // Replay once on load.
   useEffect(() => {
     if (status !== "ready" || members.length === 0) return
-    setT(tMin)
+    setT(axis.min)
     setPlaying(true)
-  }, [status, members.length, tMin])
+  }, [status, members.length, axis.min])
 
   useEffect(() => {
     if (!playing) return
-    const step = Math.max(1, Math.round((tMax - tMin) / 90))
+    const step = Math.max(1, Math.round((axis.max - axis.min) / 90))
     const timer = setInterval(() => {
       setT((prev) => {
-        const next = (prev ?? tMin) + step
-        if (next >= tMax) {
+        const next = (prev ?? axis.min) + step
+        if (next >= axis.max) {
           setPlaying(false)
-          return tMax
+          return axis.max
         }
         return next
       })
     }, 90)
     return () => clearInterval(timer)
-  }, [playing, tMin, tMax])
+  }, [playing, axis.min, axis.max])
 
   // Per-frame server query for the latency HUD and Cypher provenance.
   useEffect(() => {
@@ -200,8 +223,8 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
             onSelect={select}
           />
           <Timeline
-            tMin={tMin}
-            tMax={tMax}
+            tMin={axis.min}
+            tMax={axis.max}
             t={effectiveT}
             windowStart={incident.windowStart}
             windowEnd={incident.windowEnd}
@@ -215,11 +238,18 @@ export function IncidentRoom({ incidentId, embedded = false }: Props): JSX.Eleme
               if (playing) {
                 setPlaying(false)
               } else {
-                setT((prev) => (prev !== null && prev >= tMax ? tMin : prev))
+                setT((prev) => (prev !== null && prev >= axis.max ? axis.min : prev))
                 setPlaying(true)
               }
             }}
           />
+          {tail.afterWindow > 0 && (
+            <p className="meta" style={{ marginTop: 14, lineHeight: 1.55, maxWidth: 560 }}>
+              {num(tail.inWindow)} exposed inside the {windowLabel} detection window.{" "}
+              {num(tail.afterWindow)} more dependents kept resolving the malicious range after
+              detection, the latest on {dateUtc(tail.last)}.
+            </p>
+          )}
         </div>
 
         <Inspector
@@ -295,7 +325,7 @@ function Timeline({
         onPointerMove={(event) => {
           if (event.buttons === 1) setFromClientX(event.clientX)
         }}
-        style={{ position: "relative", height: 40, cursor: "pointer", userSelect: "none" }}
+        style={{ position: "relative", height: 46, cursor: "pointer", userSelect: "none" }}
       >
         <div
           style={{
@@ -322,20 +352,37 @@ function Timeline({
         {[
           { at: windowStart, label: "compromise" },
           { at: windowEnd, label: windowEndEstimated ? "detected (est.)" : "detected" },
-        ].map((mark) => (
-          <div
-            key={mark.label}
-            style={{ position: "absolute", top: 8, left: `${markPct(mark.at)}%` }}
-          >
-            <div style={{ width: 1, height: 22, background: "var(--ash)" }} />
-            <div
-              className="meta"
-              style={{ transform: "translateX(-50%)", whiteSpace: "nowrap", marginTop: 2 }}
-            >
-              {mark.label}
+        ].map((mark) => {
+          const p = markPct(mark.at)
+          const transform =
+            p <= 1 ? "translateX(0)" : p >= 99 ? "translateX(-100%)" : "translateX(-50%)"
+          return (
+            <div key={mark.label}>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  left: `${p}%`,
+                  width: 1,
+                  height: 22,
+                  background: "var(--ash)",
+                }}
+              />
+              <div
+                className="meta"
+                style={{
+                  position: "absolute",
+                  top: 32,
+                  left: `${p}%`,
+                  transform,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {mark.label}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
         <div
           style={{
             position: "absolute",

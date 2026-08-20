@@ -6,6 +6,10 @@ export function dateTimeUtc(seconds: number): string {
   return `${new Date(seconds * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`
 }
 
+export function dateUtc(seconds: number): string {
+  return `${new Date(seconds * 1000).toISOString().slice(0, 10)} UTC`
+}
+
 export function num(value: number): string {
   return value.toLocaleString("en-US")
 }
