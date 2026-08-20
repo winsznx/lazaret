@@ -1,24 +1,41 @@
 # Lazaret
 
-Supply-chain blast radius over a HydraDB dependency graph. When an npm package is compromised, Lazaret answers which of your services were actually exposed, in seconds, with the dependency path as evidence, and replays the attack spreading through the real npm graph minute by minute.
+Supply-chain blast radius over a HydraDB dependency graph. When an npm package is compromised, Lazaret answers which of your services were actually exposed, in milliseconds, with the dependency path as evidence, and replays the attack spreading through the real npm graph minute by minute.
 
 Built for Hack Hydra, Track 2A (supply-chain blast radius).
 
-## Status
+## The result
 
-Under active development during the hackathon build window. This section tracks what is live, so nothing below is claimed before it works.
+Over a slice of the real npm graph (3,980 packages, 31,700 versions, 85,780 `DEPENDS_ON` edges in HydraDB), Lazaret compiles the real September 2025 chalk/debug worm, 16 registry-confirmed compromised versions, into a **983-version exposure closure across six depth levels in 3.4 seconds**. After that one-time compile, the blast radius at any minute of the incident returns in about **56 ms**, and any lockfile gets a verdict with a concrete evidence path such as `strip-ansi@7.1.1 -> @isaacs/cliui@8.0.2 -> jackspeak@4.0.0`.
 
-- [ ] Reference model and fixtures
-- [ ] npm slice loaded into HydraDB
-- [ ] Advisory compiler and incident replay
-- [ ] Verdict API and lockfile parsing
-- [ ] Hosted demo and 3-minute video
+Every number here lives in [`claims.json`](claims.json) and is re-checked by `pnpm check:claims`. A stale claim fails CI.
 
-Numbers anywhere in this repo come from `claims.json` and are re-verified by `pnpm check:claims`. A stale claim fails CI.
+## Run it in two minutes
+
+```bash
+pnpm install
+bash scripts/dev-up.sh      # HydraDB node + indexer via Docker, waits for ready
+pnpm run seed:fixture       # load the deterministic micro-slice
+pnpm run verify             # compiled EXPOSES == reference-model closure, exact, plus the claim checker
+```
+
+`pnpm run verify` is the honesty check: it compiles the fixture incident into HydraDB and asserts the graph's `EXPOSES` set equals an independent in-memory reference resolver, exactly, depths and all.
+
+To see it at real scale with the UI:
+
+```bash
+pnpm exec tsx apps/ingest/src/cli.ts crawl --max=3000 --depth=1     # ~2 min against the live registry
+pnpm exec tsx apps/ingest/src/cli.ts load-dir
+pnpm exec tsx apps/ingest/src/cli.ts compile --incident=fixtures/incidents/chalk-debug-2025-09.json
+pnpm run api                       # http://127.0.0.1:8080
+pnpm --filter @lazaret/web dev     # http://127.0.0.1:5173
+```
+
+Hosted demo and the 3-minute video: links land here once deployed to Cloudflare Pages and recorded. See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## The problem
 
-Supply-chain attacks are automated now. In the TanStack compromise on May 11 2026, 84 malicious versions across 42 packages went live within six minutes of a CI breach, and the worm went on to hit more than 160 other npm and PyPI packages. The defender's problem is speed. When a package is compromised at 09:00, which of your services are exposed by 09:06?
+Supply-chain attacks are automated now. On September 8 2025 the qix maintainer account was compromised and pushed malicious versions of chalk, debug, ansi-styles and more than a dozen other packages within eight minutes. In the May 2026 TanStack wave, 84 malicious versions across 42 packages went live in six minutes. The defender's problem is speed. When a package is compromised at 09:00, which of your services are exposed by 09:06?
 
 That question is a transitive reverse-dependency closure over a graph with tens of millions of versioned nodes, filtered by semver satisfaction and a liveness window. A similarity index cannot answer it.
 
@@ -30,28 +47,35 @@ An app-side compiler runs the exposure fixpoint, semver satisfaction plus a live
 
 ## How HydraDB is used
 
-HydraDB is the graph store and the traversal engine, not a cache in front of something else. The dependency graph of packages, versions, and `DEPENDS_ON` edges lives in HydraDB. The compiler's frontier expansion is a reverse-adjacency read against HydraDB. The compiled `EXPOSES` and `EXPOSED_VIA` edges are written back with batched `UNWIND` mutations and read for every replay frame and every verdict. Remove HydraDB and there is no graph to traverse and nothing to replay.
+HydraDB is the graph store and the traversal engine, not a cache in front of something else. The dependency graph of packages, versions, and `DEPENDS_ON` edges lives in HydraDB. The compiler's frontier expansion is a reverse-adjacency read against HydraDB, made fast by the `graph-indexer` that publishes CSC generations. The compiled `EXPOSES` and `EXPOSED_VIA` edges are written back with batched `UNWIND` mutations and read for every replay frame and every verdict. Remove HydraDB and there is no graph to traverse and nothing to replay.
 
-Lazaret runs HydraDB as an unmodified server over Bolt and HTTP, so Lazaret's own code stays MIT while HydraDB remains AGPL-3.0. See [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for the license boundary and any upstream work.
+Lazaret runs HydraDB as an unmodified server over Bolt and HTTP, so Lazaret's own code stays MIT while HydraDB remains AGPL-3.0. See [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for the license boundary.
 
-## Verify it fastest
+## What is here
 
-See [SETUP.md](SETUP.md) for the full path. The target flow, wired up as the phases in Status land:
+- `packages/refmodel`: the independent semver fixpoint and verdict oracle, no graph. 25 tests plus 1,500 property cases.
+- `packages/graph-client`: the typed HydraDB client, UNWIND batch writers and NDJSON streaming reads, 53-bit ids.
+- `apps/ingest`: the npm crawler, loader, and the advisory compiler, with a `verify` that proves parity against the reference model.
+- `apps/api`: the Fastify service, blast radius at t, evidence path, and lockfile verdicts.
+- `apps/web`: the Vite and React replay and verdict UI.
 
-```bash
-pnpm install
-docker compose up -d      # single-node HydraDB
-pnpm seed:fixture         # load the micro-slice, compile the fixture advisory
-pnpm verify               # reference-model parity plus the claim checker
-```
+## Verdict semantics
 
-## Architecture
+For each service in an uploaded lockfile, per incident: `EXPOSED_PINNED` (the tree resolves a compromised version), `EXPOSED_WINDOW` (a declared range would resolve into the attack), `CLEAN` (in the slice and neither fires), or `OUT_OF_SLICE` (a referenced package is outside the slice, so Lazaret abstains rather than guessing). Uploaded lockfiles are processed in memory and never stored (see [SECURITY.md](SECURITY.md)).
 
-[ARCHITECTURE.md](ARCHITECTURE.md) covers the storage model, the compiler, the graph schema, and the benchmark methodology. [SECURITY.md](SECURITY.md) covers the threat model and the privacy boundary for uploaded lockfiles. [DECISIONS.md](DECISIONS.md) records the design decisions and their evidence.
+## Limitations
+
+- The slice is a bounded crawl seeded from npm-high-impact plus the incident packages, not all of npm. Every claim says "a slice of N", never "all of npm".
+- Malicious version numbers and publish times are reconstructed from the live npm registry `time` map, which survives even after the versions are removed. Incident window ends are estimates from published detection reports and are flagged as such.
+- Latency numbers are from a local single-node HydraDB on Apple Silicon.
+
+## Documentation
+
+[ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [DECISIONS.md](DECISIONS.md), [SETUP.md](SETUP.md), and [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Attribution
 
-Lazaret builds on HydraDB (AGPL-3.0, consumed unmodified as a network service), node-semver, the public npm registry, OSV and GitHub Advisory data, the npm-high-impact seed list, and the incident write-ups cited in [ARCHITECTURE.md](ARCHITECTURE.md). Each source is credited where the code uses it.
+Lazaret builds on HydraDB (AGPL-3.0, consumed unmodified as a network service), node-semver, the public npm registry, the npm-high-impact seed list, and the incident write-ups from the TanStack postmortem, GHSA-g7cv-rxg3-hmpx, and the Snyk, Wiz, StepSecurity, and Aikido reports on the September 2025 worm.
 
 ## License
 
